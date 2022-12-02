@@ -4,9 +4,9 @@ using System.Linq;
 const string OpponentRock = "A";
 const string OpponentPaper = "B";
 const string OpponentScissors = "C";
-const string YouRock = "X";
-const string YouPaper = "Y";
-const string YouScissors = "Z";
+const string YouRock = "X"; // 1 point
+const string YouPaper = "Y"; // 2 points
+const string YouScissors = "Z"; // 3 points
 const string YouLose = "X";
 const string YouDraw = "Y";
 const string YouWin = "Z";
