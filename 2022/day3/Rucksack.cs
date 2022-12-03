@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace Day3;
 
 public class Rucksack
@@ -30,6 +32,30 @@ public class Rucksack
     return sum;
   }
 
+  public int GetPrioritySum2()
+  {
+    return GetCommonAllItems3()
+      .Select(item => {
+        Console.WriteLine(item);
+        return priorityConverter.GetPriority(char.Parse(item));
+      })
+      .Sum();
+  }
+
+  private IEnumerable<string> GetCommonAllItems3()
+  {
+    // Get common items in groups of 3
+    for (var i = 0; i < rucksackItems.Length; i = i + 3)
+    {
+      var elfItems1 = rucksackItems[i].ToCharArray();
+      var elfItems2 = rucksackItems[i+1].ToCharArray();
+      var elfItems3 = rucksackItems[i+2].ToCharArray();
+
+      var commonItem = elfItems1.Intersect(elfItems2).Intersect(elfItems3);
+      yield return commonItem.First().ToString();
+    }
+  }
+
   private string GetCommonItem(string items)
   {
     var itemMap = new Dictionary<char, int>();
@@ -37,23 +63,38 @@ public class Rucksack
     var midpoint = items.Length / 2;
     var compartment1 = items.Substring(0, midpoint);
     var compartment2 = items.Substring(midpoint);
-    
-    foreach (var item in compartment1)
-    {
-      if (!itemMap.ContainsKey(item))
-        itemMap[item] = 0;
-    }
 
-    foreach (var item in compartment2)
-    {
-      if (itemMap.ContainsKey(item))
-        itemMap[item]++;
-      else
-        itemMap[item] = 0;
-    }
+    AddItemCountsToMap(itemMap, compartment1, compartment2);
 
     return itemMap.First(x => x.Value > 0)
       .Key
       .ToString();
+  }
+
+  private void AddItemCountsToMap(Dictionary<char, int> itemMap, params string[] itemsOfItems)
+  {
+    var count = 0;
+    foreach (var items in itemsOfItems)
+    {
+      if (count == 0)
+      {
+        foreach (var item in items)
+        {
+          if (!itemMap.ContainsKey(item))
+            itemMap[item] = 0;
+        }
+      }
+      else
+      {
+        foreach (var item in items)
+        {
+          if (itemMap.ContainsKey(item))
+            itemMap[item]++;
+          else
+            itemMap[item] = 0;
+        }
+      }
+      count++;
+    }
   }
 }

@@ -9,8 +9,10 @@ public class Program
     var rucksack = new Rucksack();
     rucksack.ReadItems("input.txt");
     var sum = rucksack.GetPrioritySum();
+    var sum2 = rucksack.GetPrioritySum2();
 
     Console.WriteLine(sum);
+    Console.WriteLine(sum2);
 
     return 0;
   }
