@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace Day4;
 
 public class ElfAssignmentManager
@@ -23,6 +25,25 @@ public class ElfAssignmentManager
       //Console.WriteLine(string.Join(", ", pair2));
 
       if (!pair1.Except(pair2).Any() || !pair2.Except(pair1).Any()) {
+        count++;
+      }
+    }
+
+    return count;
+  }
+
+  public int CalculateOverlappingAssignments()
+  {
+    var count = 0;
+    foreach (var assignment in assignments)
+    {
+      var assignmentPair = assignment.Split(",");
+      var pair1 = (new Assignment(assignmentPair[0]))
+        .ToArray();
+      var pair2 = (new Assignment(assignmentPair[1]))
+        .ToArray();
+
+      if (pair2.Intersect(pair1).Any()) {
         count++;
       }
     }

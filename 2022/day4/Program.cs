@@ -9,7 +9,9 @@ public class Program
     var manager = new ElfAssignmentManager();
     manager.Load("input.txt");
     var fullyCoveredAssignments = manager.CalculateFullyCoveredAssignments();
+    var partialOverlappingAssignments = manager.CalculateOverlappingAssignments();
 
     Console.WriteLine(fullyCoveredAssignments);
+    Console.WriteLine(partialOverlappingAssignments);
   }
 }
