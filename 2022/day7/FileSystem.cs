@@ -9,7 +9,6 @@ public class FileSystem
   private Stack<FileSystemObject> currentDirectory;
 
   private FileSystemObject currentFile;
-  //private FileSystemObject previousFile;
   private FileSystemObject fileSystemRoot;
 
   public FileSystem()
@@ -18,7 +17,6 @@ public class FileSystem
 
     fileSystemRoot = new();
     currentFile = fileSystemRoot;
-    //previousFile = fileSystemRoot;
     currentDirectory.Push(fileSystemRoot);
   }
 
@@ -67,7 +65,7 @@ public class FileSystem
         HandleCommands(data);
         break;
       case OutputType.Directory:
-        Console.WriteLine($"Found directory: {parts[1]}");
+        //Console.WriteLine($"Found directory: {parts[1]}");
 
         currentFile.Children.Add(new FileSystemObject {
           Name = parts[1],
@@ -76,7 +74,7 @@ public class FileSystem
         });
         break;
       case OutputType.File:
-        Console.WriteLine($"Found file: {parts[1]}");
+        //Console.WriteLine($"Found file: {parts[1]}");
 
         TryGetFileParts(parts[1], out var name, out var extension);
         currentFile.Children.Add(new FileSystemObject {
@@ -100,10 +98,8 @@ public class FileSystem
     {
       var previousDirectory = currentDirectory.Pop();
       currentFile = currentDirectory.Peek();
-      //previousFile = currentFile.Parent;
 
-      //Console.WriteLine($"Previous: {previousFile.Name}");
-      Console.WriteLine($"Current: {currentFile.Name}");
+      //Console.WriteLine($"Current: {currentFile.Name}");
     }
     else if (parts[2] == "/")
     {
@@ -118,11 +114,9 @@ public class FileSystem
     }
     else
     {
-      //Console.WriteLine($"Previous Directory is: {previousFile.Name}");
-      Console.WriteLine($"Current Directory is: {parts[2]} {currentFile.Name}");
+      //Console.WriteLine($"Current Directory is: {parts[2]} {currentFile.Name}");
 
       var destination = currentFile.Children.First(x => x.Name == parts[2]);
-      //previousFile = currentFile;
       currentFile = destination;
 
       currentDirectory.Push(destination);
