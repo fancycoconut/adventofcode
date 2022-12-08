@@ -15,6 +15,11 @@ public class Program
     var visibleTrees = GetVisibleTrees(map, width, height);
 
     Console.WriteLine($"Number of visible trees: {visibleTrees}");
+
+    var scenicScores = GetScenicScores(map, width, height)
+      .ToList();
+
+      Console.WriteLine($"Highest scenic score: {scenicScores.Select(x => x.score).Max()}");
   }
 
   private static int[,] GetHeightMap(string[] lines)
@@ -65,13 +70,12 @@ public class Program
         }
 
         // Hidden trees
-        Console.WriteLine($"[{x},{y}] current: {treeHeight}");
+        //Console.WriteLine($"[{x},{y}] current: {treeHeight}");
       }
     }
 
     return visibleTrees;
   }
-
 
   private static bool LeftSideIsVisible(int currentTreeHeight, int[,] map, int startX, int startY)
   {
@@ -123,5 +127,87 @@ public class Program
     }
 
     return true;
+  }
+
+  public static IEnumerable<(int x, int y, int score)> GetScenicScores(int[,] treeHeightMap, int width, int height)
+  {
+    for (var y = 0; y < height; y++)
+    {
+      for (var x = 0; x < width; x++)
+      {
+        var treeHeight = treeHeightMap[x, y];
+
+        var leftScenicScore = GetLeftScenicScore(treeHeight, treeHeightMap, x, y);
+        var rightScenicScore = GetRightScenicScore(treeHeight, treeHeightMap, x, y, width);
+        var topScenicScore = GetTopScenicScore(treeHeight, treeHeightMap, x, y);
+        var bottomScenicScore = GetBottomScenicScore(treeHeight, treeHeightMap, x, y, height);
+
+        yield return (x, y, leftScenicScore * rightScenicScore * topScenicScore * bottomScenicScore);
+      }
+    }
+  }
+
+  private static int GetLeftScenicScore(int currentTreeHeight, int[,] map, int startX, int startY)
+  {
+    var score = 0;
+    var x = startX - 1;
+    while (x >= 0)
+    {
+      var leftTreeHeight = map[x, startY];
+      if (leftTreeHeight >= currentTreeHeight) return score + 1;
+
+      x--;
+      score++;
+    }
+
+    return score;
+  }
+
+  private static int GetRightScenicScore(int currentTreeHeight, int[,] map, int startX, int startY, int width)
+  {
+    var score = 0;
+    var x = startX + 1;
+    while (x < width)
+    {
+      var rightTreeHeight = map[x, startY];
+      if (rightTreeHeight >= currentTreeHeight) return score + 1;
+
+      x++;
+      score++;
+    }
+
+    return score;
+  }
+
+  private static int GetTopScenicScore(int currentTreeHeight, int[,] map, int startX, int startY)
+  {
+    var score = 0;
+    var y = startY - 1;
+    while (y >= 0)
+    {
+      var topTreeHeight = map[startX, y];
+      if (topTreeHeight >= currentTreeHeight) return score + 1;
+
+      y--;
+      score++;
+    }
+
+    return score;
+  }
+
+  private static int GetBottomScenicScore(int currentTreeHeight, int[,] map, int startX, int startY, int height)
+  {
+    var score = 0;
+    var y = startY + 1;
+    while (y < height)
+    {
+      var bottomTreeHeight = map[startX, y];
+      if (bottomTreeHeight >= currentTreeHeight) return score + 1;
+
+      y++;
+      score++;
+    }
+
+    return score;
   }
 }
