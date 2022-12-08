@@ -38,10 +38,6 @@ public class Program
 
   private static int GetVisibleTrees(int[,] treeHeightMap, int width, int height)
   {
-    var top = 0;
-    var bottom = 0;
-    var left = 0; 
-    var right = 0;
     var visibleTrees = 0;
 
     for (var y = 0; y < height; y++)
@@ -49,11 +45,6 @@ public class Program
       for (var x = 0; x < width; x++)
       {
         var treeHeight = treeHeightMap[x, y];
-
-        // if (y >= 1) top = treeHeightMap[x, y-1];
-        // if (x >= 1) left = treeHeightMap[x-1, y];
-        // if (x+1 < width) right = treeHeightMap[x+1,y];
-        // if (y+1 < height) bottom = treeHeightMap[x,y+1];
 
         // Check the edges
         if (x == 0 || y == 0 || x == width - 1 || y == height - 1)
@@ -73,26 +64,7 @@ public class Program
           continue;
         }
 
-        // if ((treeHeight > left && x <= width / 2) || (treeHeight > right && x >= width / 2))
-        // {
-        //   visibleTrees++;
-        //   continue;
-        // }
-
-        // if ((treeHeight > top && x <= height / 2) || (treeHeight > bottom && y= > height / 2))
-        // {
-        //   visibleTrees++;
-        //   continue;
-        // }
-
-
-        // if (treeHeight > left && treeHeight > top && treeHeight > bottom && treeHeight > right)
-        // {
-        //   //Console.WriteLine($"top: {top}, bottom: {bottom}, left: {left}, right: {right} current: {treeHeight}");
-        //   visibleTrees++;
-        //   continue;
-        // }
-
+        // Hidden trees
         Console.WriteLine($"[{x},{y}] current: {treeHeight}");
       }
     }
