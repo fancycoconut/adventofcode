@@ -46,11 +46,11 @@ public class Program
     {
         (int x, int y) headCoordinates = (0, 0);
         (int x, int y)[] knots = new (int x, int y)[] {
-            (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0)
+            (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0), (0, 0)
         };
         var numberOfVisitedLocations = new HashSet<(int, int)>();
 
-        numberOfVisitedLocations.Add((0, 0));
+        numberOfVisitedLocations.Add(knots[^1]);
         foreach (var instruction in instructions)
         {
             var instructionPair = instruction.Split(" ");
@@ -66,7 +66,7 @@ public class Program
                 {
                     MoveTail(ref knots[j], knots[j - 1]);
                 }
-                if (!numberOfVisitedLocations.Contains(knots[9])) numberOfVisitedLocations.Add(knots[9]);
+                if (!numberOfVisitedLocations.Contains(knots[^1])) numberOfVisitedLocations.Add(knots[^1]);
             }            
         }
 
