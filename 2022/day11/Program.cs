@@ -8,8 +8,12 @@ public class Program
 
     var monkeyInMiddle = new MonkeyInMiddle();
     monkeyInMiddle.Load("input.txt");
-    monkeyInMiddle.Predict(20);
+    //monkeyInMiddle.Part1Predict(1);
 
+    //var monkeyBusinessLevel = monkeyInMiddle.GetMonkeyBusinessLevel();
+    //Console.WriteLine(monkeyBusinessLevel);
+
+    monkeyInMiddle.Part2Predict(10000);
     var monkeyBusinessLevel = monkeyInMiddle.GetMonkeyBusinessLevel();
     Console.WriteLine(monkeyBusinessLevel);
   }
