@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System.Collections.Generic;
 
 namespace day13;
 
@@ -17,43 +17,103 @@ public class PacketOrder
         var index = 0;
         for (var i = 0; i < lines.Length; i += 3)
         {
-            var left = GetList(lines[i]);
-            var right = GetList(lines[i + 1]);
+            var left = BuildList(lines[i]);
+            var right = BuildList(lines[i + 1]);
 
-            //var correctOrder = InRightOrder(left, right);
+            var correctOrder = InRightOrder(left, right);
             yield return true;
             index++;
         }
     }
 
-    private List<object> GetList(string line)
+    private List<object> BuildList(string line)
     {
-        var i = 1;
-        var list = new List<object>();
-        var indexSum = 0;
-        while (i < line.Length - 1)
+        var i = 0;
+        List<object> final = null!;
+        var stack = new Stack<List<object>>();
+
+        while (i < line.Length)
         {
             var character = line[i];
             i++;
 
-            if (character == ',' || character == ']') continue;
+            if (character == ',') continue;
+            if (character == ']')
+            {
+                final = stack.Pop();
+                continue;
+            }
             if (character == '[')
             {
-                var prev = i - 1;
-                var index = line[prev..].IndexOf(']') + 1;
-                var sublist = line[prev..][..index];
-                i = index + indexSum + 1;
-                indexSum += index;
-                list.Add(GetList(sublist));
+                var newList = new List<object>();
+                if (stack.Count > 0)
+                {
+                    stack.Peek().Add(newList);
+                }
+                
+                stack.Push(newList);
                 continue;
             }
 
-            list.Add(character);
+            stack.Peek().Add(character);
         }
 
-        return list;
+        return final;
     }
 
+    private bool InRightOrder(List<object> left, List<object> right)
+    {
+        for (var i = 0; i < left.Count; i++)
+        {
+            // There's still items on the right but items are ordered on the left
+            //if (i == left.Count - 1 && right.Count > left.Count) return true;
+            //if (i >= right.Count) return true;
+            
+            var a = TryGetValue(left, i);
+            var b = TryGetValue(right, i);
+            var leftIsValue = a is char;
+            var rightIsValue = b is char;
+
+            if (leftIsValue && !rightIsValue)
+            {
+                var rightOrder = InRightOrder(new List<object> { (char)a }, (List<object>)b);
+                if (!rightOrder) return false;
+            }
+
+            if (!leftIsValue && rightIsValue)
+            {
+                var rightOrder = InRightOrder((List<object>)a, new List<object> { (char)b });
+                if (!rightOrder) return false;
+            }
+
+            if (!leftIsValue && !rightIsValue)
+            {
+                var rightOrder = InRightOrder((List<object>)a, (List<object>)b);
+                if (!rightOrder) return false;
+;            }
+
+            if (leftIsValue && rightIsValue)
+            {
+                if ((char)a != (char)0 && (char)b == (char)0) return true;
+                if ((char)a > (char)b) return false;
+            }
+        }
+
+        return true;
+    }
+
+    private object TryGetValue(List<object> list, int index)
+    {
+        try
+        {
+            return list[index];
+        }
+        catch
+        {
+            return (char)0;
+        }
+    }
+    
     private bool InRightOrder(string left, string right)
     {
         var max = new[] { left.Length, right.Length }.Max();
