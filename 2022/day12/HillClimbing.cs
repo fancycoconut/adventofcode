@@ -96,6 +96,8 @@ public class HillClimbing
 
       visitedLocations.Add((x, y));
       var currentHeight = heightMap[x, y];
+      if (currentHeight == 'E') break;
+
       Console.WriteLine($"({x},{y}) - {currentHeight}");
     }
 
