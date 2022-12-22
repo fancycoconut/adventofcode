@@ -9,10 +9,7 @@ public class Program
         Console.WriteLine("Hello World!");
 
         var packetOrder = new PacketOrder();
-        packetOrder.Process("sample.txt");
-
-        //true, true, false, true, false, true, false, false
-
+        packetOrder.PrintSumOfIndicies("input.txt");
     }
 }
 

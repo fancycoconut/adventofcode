@@ -4,13 +4,22 @@ namespace day13;
 
 public class PacketOrder
 {
-    public List<bool> SignalPairsInOrder = new();
+    private bool[] expected = new[] { true, true, false, true, false, true, false, false };
 
-    public void Process(string input)
+    public void PrintSumOfIndicies(string input)
     {
         var lines = File.ReadAllLines(input);
-        SignalPairsInOrder = Process(lines).ToList();
-        //true, true, false, true, false, true, false, false
+        var signalResults = Process(lines).ToList();
+
+        var i = 0;
+        var sumOfIndicies = 0;
+        foreach (var result in signalResults)
+        {
+            i++;
+            sumOfIndicies += result ? i : 0;
+        }
+        
+        Console.WriteLine($"Sum of Indicies: {sumOfIndicies}");
     }
 
     private IEnumerable<bool> Process(string[] lines)
@@ -22,7 +31,7 @@ public class PacketOrder
             var right = BuildList(lines[i + 1]);
 
             var correctOrder = InRightOrder(left, right);
-            Console.WriteLine($"{index}: {correctOrder}");
+            Console.WriteLine($"{index}: {correctOrder == expected[index]}");
             yield return correctOrder;
             index++;
         }
@@ -68,23 +77,12 @@ public class PacketOrder
         for (var i = 0; i < left.Count; i++)
         {
             // There's still items on the right but items are ordered on the left
-            //if (i == left.Count - 1 && right.Count > left.Count) return true;
             //if (i >= right.Count) return true;
-            
+
             var a = TryGetValue(left, i);
             var b = TryGetValue(right, i);
             var leftIsValue = a is char;
             var rightIsValue = b is char;
-
-            // if (i >= right.Count)
-            // {
-            //     if (i == right.Count - 1)
-            //     {
-            //         
-            //     }
-            //
-            //     break;
-            // }
 
             if (leftIsValue && !rightIsValue)
             {
@@ -102,22 +100,27 @@ public class PacketOrder
 
             if (!leftIsValue && !rightIsValue)
             {
+                if (i == left.Count - 1 && left.Count < right.Count) return true;
+                if (i > right.Count) return false;
+
                 var listA = (List<object>)a;
                 var listB = (List<object>)b;
-                if (!listB.Any()) return false;
-                
+
                 var rightOrder = InRightOrder(listA, listB);
                 if (!rightOrder) return false;
 ;           }
 
             if (leftIsValue && rightIsValue)
             {
-                //if (i >= right.Count - 1 && (char)b == char.MaxValue) return false;
+                if (i >= right.Count && (char)a < (char)right[^0]) return true;
+
                 if ((char)a > (char)b) return false;
             }
         }
 
-        return true;
+        if (left.Count == right.Count) return true;
+
+        return left.Count < right.Count;
     }
 
     private object TryGetValue(List<object> list, int index)
@@ -128,7 +131,7 @@ public class PacketOrder
         }
         catch
         {
-            return char.MaxValue;
+            return (char)0;
         }
     }
     
