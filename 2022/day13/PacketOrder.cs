@@ -10,6 +10,7 @@ public class PacketOrder
     {
         var lines = File.ReadAllLines(input);
         SignalPairsInOrder = Process(lines).ToList();
+        //true, true, false, true, false, true, false, false
     }
 
     private IEnumerable<bool> Process(string[] lines)
@@ -21,7 +22,8 @@ public class PacketOrder
             var right = BuildList(lines[i + 1]);
 
             var correctOrder = InRightOrder(left, right);
-            yield return true;
+            Console.WriteLine($"{index}: {correctOrder}");
+            yield return correctOrder;
             index++;
         }
     }
@@ -74,27 +76,43 @@ public class PacketOrder
             var leftIsValue = a is char;
             var rightIsValue = b is char;
 
+            // if (i >= right.Count)
+            // {
+            //     if (i == right.Count - 1)
+            //     {
+            //         
+            //     }
+            //
+            //     break;
+            // }
+
             if (leftIsValue && !rightIsValue)
             {
-                var rightOrder = InRightOrder(new List<object> { (char)a }, (List<object>)b);
+                var listB = (List<object>)b;
+                var rightOrder = InRightOrder(new List<object> { (char)a }, listB);
                 if (!rightOrder) return false;
             }
 
             if (!leftIsValue && rightIsValue)
             {
-                var rightOrder = InRightOrder((List<object>)a, new List<object> { (char)b });
+                var listA = (List<object>)a;
+                var rightOrder = InRightOrder(listA, new List<object> { (char)b });
                 if (!rightOrder) return false;
             }
 
             if (!leftIsValue && !rightIsValue)
             {
-                var rightOrder = InRightOrder((List<object>)a, (List<object>)b);
+                var listA = (List<object>)a;
+                var listB = (List<object>)b;
+                if (!listB.Any()) return false;
+                
+                var rightOrder = InRightOrder(listA, listB);
                 if (!rightOrder) return false;
-;            }
+;           }
 
             if (leftIsValue && rightIsValue)
             {
-                if ((char)a != (char)0 && (char)b == (char)0) return true;
+                //if (i >= right.Count - 1 && (char)b == char.MaxValue) return false;
                 if ((char)a > (char)b) return false;
             }
         }
@@ -110,7 +128,7 @@ public class PacketOrder
         }
         catch
         {
-            return (char)0;
+            return char.MaxValue;
         }
     }
     
