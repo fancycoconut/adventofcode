@@ -4,7 +4,7 @@ namespace day13;
 
 public class PacketOrder
 {
-    private bool[] expected = new[] { true, true, false, true, false, true, false, false };
+    private bool[] expected = { true, true, false, true, false, true, false, false };
 
     public void PrintSumOfIndicies(string input)
     {

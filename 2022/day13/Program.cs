@@ -9,7 +9,7 @@ public class Program
         Console.WriteLine("Hello World!");
 
         var packetOrder = new PacketOrder();
-        packetOrder.PrintSumOfIndicies("input.txt");
+        packetOrder.PrintSumOfIndicies("sample.txt");
     }
 }
 
