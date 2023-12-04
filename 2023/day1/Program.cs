@@ -35,35 +35,47 @@ static void PartOne()
 
 static void PartTwo()
 {
-    var lines = File.ReadAllLines("sample.txt");
+    var lines = File.ReadAllLines("sample2.txt");
 
     var sum = 0;
-    var sb = new StringBuilder();
     foreach (var line in lines)
     {
-        int first = 0, last = 0;
-        foreach (var c in line.AsSpan())
-        {
-            sb.Append(c);
-            //Console.WriteLine($"Test: {sb.ToString()}");
-            var digit = GetDigit(sb.ToString());
-            if (digit == 0) continue;
-            sb.Clear();
+        var digits = GetDigits(line).ToArray();
+        Console.WriteLine($"{digits[0]}{digits[digits.Length - 1]}");
 
-            if (first == 0) first = digit;
-            last = digit;
-        }
-
-        var number = first.ToString() + last.ToString();
-        Console.WriteLine(number);
-
-        sum += Convert.ToInt32($"{first}{last}");
+        sum += Convert.ToInt32($"{digits[0]}{digits[digits.Length - 1]}");
     }
 
     Console.WriteLine($"The answer is: {sum}");
 }
 
+static IEnumerable<int> GetDigits(string line)
+{
+    var sb = new StringBuilder();
+    foreach (var c in line)
+    {
+        sb.Append(c);
+        var digit = GetDigit(sb.ToString());
+
+        if (digit == 0) continue;
+        yield return digit;
+
+        sb.Clear();
+        sb.Append(c);
+    }
+}
+
 static int GetDigit(string numberAsText)
+{
+    var numbers = new string[] { "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+    foreach (var number in numbers) {
+        if (numberAsText.Contains(number)) return GetNumber(number);
+    }
+
+    return 0;
+}
+
+static int GetNumber(string numberAsText)
 {
     return numberAsText switch
     {
@@ -76,6 +88,15 @@ static int GetDigit(string numberAsText)
         "seven" => 7,
         "eight" => 8,
         "nine" => 9,
+        "1" => 1,
+        "2" => 2,
+        "3" => 3,
+        "4" => 4,
+        "5" => 5,
+        "6" => 6,
+        "7" => 7,
+        "8" => 8,
+        "9" => 9,
         _ => 0
     };
 }
