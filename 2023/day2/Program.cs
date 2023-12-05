@@ -14,6 +14,8 @@ Part1("input.txt", new GameCubesConfiguration {
   Green = 13,
   Blue = 14
 });
+Part2("sample.txt");
+Part2("input.txt");
 
 void Part1(string filename, GameCubesConfiguration configuration)
 {
@@ -35,6 +37,32 @@ void Part1(string filename, GameCubesConfiguration configuration)
   }
   
   Console.WriteLine($"Game id sum for {filename}: {sum}");
+}
+
+void Part2(string filename)
+{
+  var lines = File.ReadAllLines(filename);
+
+  var sum = 0;
+  foreach (var line in lines)
+  {
+    var drawnCubeSets = ParseDrawnCubes(line)
+      .ToList();
+
+    var power = FindPowerOfDrawnCubeSets(drawnCubeSets);
+    sum += power;
+  }
+  
+  Console.WriteLine($"Sum of game powers for {filename}: {sum}");
+}
+
+int FindPowerOfDrawnCubeSets(List<DrawnCubeSet> drawnCubeSets)
+{
+  var minNumOfReds = drawnCubeSets.Max(x => x.Red);
+  var minNumOfGreens = drawnCubeSets.Max(x => x.Green);
+  var minNumOfBlues = drawnCubeSets.Max(x => x.Blue);
+
+  return minNumOfReds * minNumOfGreens * minNumOfBlues;
 }
 
 bool CheckGamePossibility(List<DrawnCubeSet> drawnResults, GameCubesConfiguration configuration)
