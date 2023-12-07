@@ -74,23 +74,7 @@ IEnumerable<(int, int)> GetAdjacentCoordinatesWithNumbers(int currentX, int curr
   }
 }
 
-static bool IsNumericCharacter(char value)
-{
-  return value switch
-  {
-    '0' => true,
-    '1' => true,
-    '2' => true,
-    '3' => true,
-    '4' => true,
-    '5' => true,
-    '6' => true,
-    '7' => true,
-    '8' => true,
-    '9' => true,
-    _ => false
-  };
-}
+
 
 static bool IsSpecialCharacter(char value)
 {
@@ -109,6 +93,7 @@ Dictionary<(int, int), string> BuildNumberCoordinateMap(string[] lines)
   var x = 0;
   var y = 0;
   var sb = new StringBuilder();
+  var coordinates = new List<(int, int)>();
   var map = new Dictionary<(int, int), string>();
 
   foreach (var line in lines)
@@ -116,23 +101,23 @@ Dictionary<(int, int), string> BuildNumberCoordinateMap(string[] lines)
     foreach (var c in line)
     {
       x++;
-      var letter = c.ToString();
-      if (int.TryParse(letter, out var number))
+      if (IsNumericCharacter(c))
       {
-        sb.Append(letter);
+        sb.Append(c);
+        coordinates.Add((x - 1, y));
         continue;
       }
-
+      
       // Found the number now add to map for each coordinate
       var value = sb.ToString();
-      if (value.Length == 0) continue;
       sb.Clear();
 
-
-      for (var i = x - @value.Length - 1; i < x - 1; i++)
+      foreach (var coordinate in coordinates)
       {
-        map.Add((i, y), @value);
+        map.Add(coordinate, value);
       }
+
+      coordinates.Clear();
     }
     
     y++;
@@ -158,4 +143,22 @@ char[,] ParseEngineSchematic(string[] lines)
   }
 
   return map;
+}
+
+static bool IsNumericCharacter(char value)
+{
+  return value switch
+  {
+    '0' => true,
+    '1' => true,
+    '2' => true,
+    '3' => true,
+    '4' => true,
+    '5' => true,
+    '6' => true,
+    '7' => true,
+    '8' => true,
+    '9' => true,
+    _ => false
+  };
 }
