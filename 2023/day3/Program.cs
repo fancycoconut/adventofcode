@@ -49,32 +49,38 @@ HashSet<string> FindAdjacentNumbers(char[,] map, Dictionary<(int, int), string> 
 
 IEnumerable<(int, int)> GetAdjacentCoordinatesWithNumbers(int currentX, int currentY, char[,] map)
 {
-  var startX = currentX - 1 <= 0 
-    ? 0 
+  var leftX = currentX - 1 <= 0
+    ? 0
     : currentX - 1;
-  var startY = currentY - 1 <= 0
+  var rightX = currentX + 1 >= map.GetLength(0)
+    ? map.GetLength(0) - 1
+    : currentX + 1;
+  var topY = currentY - 1 <= 0
     ? 0
     : currentY - 1;
-  var endX = currentX + 2 >= map.GetLength(0) - 1
-    ? map.GetLength(0)
-    : currentX + 2;
-  var endY = currentY + 2 >= map.GetLength(1) - 1
-    ? map.GetLength(1)
-    : currentY + 2;
+  var bottomY = currentY + 1 >= map.GetLength(1)
+    ? map.GetLength(1) - 1
+    : currentY + 1;
   
-  for (var y = startY; y < endY; y++)
-  {
-    for (var x = startX; x < endX; x++)
-    {
-      var value = map[x, y];
-      if (!IsNumericCharacter(value)) continue;
-
-      yield return (x, y);
-    }
-  }
+  var topLeft = map[leftX, topY];
+  if (IsNumericCharacter(topLeft)) yield return (leftX, topY);
+  var topCenter = map[currentX, topY];
+  if (IsNumericCharacter(topCenter)) yield return (currentX, topY);
+  var topRight = map[rightX, topY];
+  if (IsNumericCharacter(topRight)) yield return (rightX, topY);
+  var middleLeft = map[leftX, currentY];
+  if (IsNumericCharacter(middleLeft)) yield return (leftX, currentY);
+  var middleCenter = map[currentX, currentY];
+  if (IsNumericCharacter(middleCenter)) yield return (currentX, currentY);
+  var middleRight = map[rightX, currentY];
+  if (IsNumericCharacter(middleRight)) yield return (rightX, currentY);
+  var bottomLeft = map[leftX, bottomY];
+  if (IsNumericCharacter(bottomLeft)) yield return (leftX, bottomY);
+  var bottomCenter = map[currentX, bottomY];
+  if (IsNumericCharacter(bottomCenter)) yield return (currentX, bottomY);
+  var bottomRight = map[rightX, bottomY];
+  if (IsNumericCharacter(bottomRight)) yield return (rightX, bottomY);
 }
-
-
 
 static bool IsSpecialCharacter(char value)
 {
@@ -83,7 +89,13 @@ static bool IsSpecialCharacter(char value)
     '*' => true,
     '#' => true,
     '+' => true,
+    '-' => true,
     '$' => true,
+    '/' => true,
+    '@' => true,
+    '%' => true,
+    '&' => true,
+    '=' => true,
     _ => false
   };
 }
