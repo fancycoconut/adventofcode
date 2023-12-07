@@ -20,11 +20,12 @@ void Part1(string filename)
   Console.WriteLine($"Sum for {filename}: {sum}");
 }
 
-HashSet<string> FindAdjacentNumbers(char[,] map, Dictionary<(int, int), string> coordinateMap)
+List<string> FindAdjacentNumbers(char[,] map, Dictionary<(int, int), string> coordinateMap)
 {
+  var output = new List<string>();
   var width = map.GetLength(0);
   var height = map.GetLength(1);
-  var adjacentNumbers = new HashSet<string>();
+
   Console.WriteLine($"Width: {width}, Height: {height}");
 
   for (var x = 0; x < width; x++)
@@ -34,17 +35,19 @@ HashSet<string> FindAdjacentNumbers(char[,] map, Dictionary<(int, int), string> 
       var value = map[x, y];
       if (!IsSpecialCharacter(value)) continue;
 
+      var adjacentNumbers = new HashSet<string>();
       var adjacentNumberCoordinates = GetAdjacentCoordinatesWithNumbers(x, y, map);
       foreach (var coordinate in adjacentNumberCoordinates)
       {
         var number = coordinateMap[coordinate];
         if (adjacentNumbers.Contains(number)) continue;
         adjacentNumbers.Add(number);
+        output.Add(number);
       }
     }
   }
 
-  return adjacentNumbers;
+  return output;
 }
 
 IEnumerable<(int, int)> GetAdjacentCoordinatesWithNumbers(int currentX, int currentY, char[,] map)
