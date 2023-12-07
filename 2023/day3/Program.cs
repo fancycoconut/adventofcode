@@ -6,6 +6,8 @@ Console.WriteLine("Hello, World!");
 
 Part1("sample.txt");
 Part1("input.txt");
+Part2("sample.txt");
+Part2("input.txt");
 
 void Part1(string filename)
 {
@@ -20,13 +22,59 @@ void Part1(string filename)
   Console.WriteLine($"Sum for {filename}: {sum}");
 }
 
+void Part2(string filename)
+{
+  var lines = File.ReadAllLines(filename);
+  var map = ParseEngineSchematic(lines);
+  var coordinateMap = BuildNumberCoordinateMap(lines);
+  
+  var ratios = FindGearRatios(map, coordinateMap);
+  var sum = ratios.Sum();
+  
+  Console.WriteLine($"Gear ratio sum for {filename}: {sum}");
+}
+
+List<int> FindGearRatios(char[,] map, Dictionary<(int, int), string> coordinateMap)
+{
+  var output = new List<int>();
+  var width = map.GetLength(0);
+  var height = map.GetLength(1);
+  
+  for (var x = 0; x < width; x++)
+  {
+    for (var y = 0; y < height; y++)
+    {
+      var value = map[x, y];
+      if (value != '*') continue;
+
+      var adjacentNumbers = new HashSet<string>();
+      var adjacentNumberCoordinates = GetAdjacentCoordinatesWithNumbers(x, y, map);
+      
+      foreach (var coordinate in adjacentNumberCoordinates)
+      {
+        var number = coordinateMap[coordinate];
+        if (adjacentNumbers.Contains(number)) continue;
+        adjacentNumbers.Add(number);
+      }
+      
+      if (adjacentNumbers.Count != 2) continue;
+
+      var partNumbers = adjacentNumbers.Select(x => int.Parse(x))
+        .ToArray();
+      output.Add(partNumbers[0] * partNumbers[1]);
+    }
+  }
+
+  return output;
+}
+
 List<string> FindAdjacentNumbers(char[,] map, Dictionary<(int, int), string> coordinateMap)
 {
   var output = new List<string>();
   var width = map.GetLength(0);
   var height = map.GetLength(1);
 
-  Console.WriteLine($"Width: {width}, Height: {height}");
+  //Console.WriteLine($"Width: {width}, Height: {height}");
 
   for (var x = 0; x < width; x++)
   {
