@@ -18,21 +18,21 @@ void Part1(string filename)
             ? 1
             : 0);
 
-        var points = matches > 2
-            ? matches * 2
-            : 1;
-
+        //var points = (uint)(1 << (matches - 1));
+        var points = 0;
+        if (matches >= 1)
+        {
+            points = 1;
+            for (var i = 0; i < matches - 1; i++)
+            {
+                points *= 2;
+            }
+        }
+        
         sum += points;
     }
     
     Console.WriteLine($"Part 1 total number of points: {sum}");
-}
-
-int FindNumberOfMatches(List<int> numbers, HashSet<int> winningNumbers)
-{
-    return numbers.Sum(number => winningNumbers.Contains(number)
-        ? 1
-        : 0);
 }
 
 HashSet<int> GetWinningNumbers(string line)
