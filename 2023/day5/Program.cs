@@ -1,8 +1,13 @@
 ﻿// See https://aka.ms/new-console-template for more information
+
+using System.Collections.Concurrent;
+
 Console.WriteLine("Hello, World!");
 
 Part1("sample.txt");
 Part1("input.txt");
+Part2("sample.txt");
+Part2("input.txt");
 
 void Part1(string filename)
 {
@@ -33,7 +38,65 @@ void Part1(string filename)
     }
 
     var lowestLocation = locations.Min();
-    Console.WriteLine($"The lowest location for all seeds is: {lowestLocation}");
+    Console.WriteLine($"Part 1 - The lowest location for all seeds is: {lowestLocation}");
+}
+
+void Part2(string filename)
+{
+    var lines = File.ReadAllLines(filename);
+    var seedsRange = GetSeedRanges(lines[0]);
+    
+    var seedToSoilMap = BuildLookupMap("seed-to-soil", lines);
+    var soilToFertilizerMap = BuildLookupMap("soil-to-fertilizer", lines);
+    var fertilizerToWaterMap = BuildLookupMap("fertilizer-to-water", lines);
+    var waterToLightMap = BuildLookupMap("water-to-light", lines);
+    var lightToTemperatureMap = BuildLookupMap("light-to-temperature", lines);
+    var temperatureToHumidityMap = BuildLookupMap("temperature-to-humidity", lines);
+    var humidityToLocationMap = BuildLookupMap("humidity-to-location", lines);
+
+    var locations = new ConcurrentBag<ulong>();
+    var seedToLocationCache = new ConcurrentDictionary<ulong, ulong>();
+    
+    var options = new ParallelOptions
+    {
+        MaxDegreeOfParallelism = Environment.ProcessorCount
+    };
+    
+    Parallel.ForEach(seedsRange, options, range =>
+    {
+        for (var seed = range.Item1; seed <= range.Item2; seed++)
+        {
+            if (seedToLocationCache.TryGetValue(seed, out var cachedLocation))
+            {
+                locations.Add(cachedLocation);
+                continue;
+            }
+            
+            var soil = seedToSoilMap.Lookup(seed);
+            var fertilizer = soilToFertilizerMap.Lookup(soil);
+            var water = fertilizerToWaterMap.Lookup(fertilizer);
+            var light = waterToLightMap.Lookup(water);
+            var temperature = lightToTemperatureMap.Lookup(light);
+            var humidity = temperatureToHumidityMap.Lookup(temperature);
+            var location = humidityToLocationMap.Lookup(humidity);
+
+            seedToLocationCache[seed] = location;
+            locations.Add(location);
+        }
+    });
+
+    var lowestLocation = locations.Min();
+    Console.WriteLine($"Part 2 - The lowest location for all seeds is: {lowestLocation}");
+}
+
+bool SeedFoundInRange(ulong seed, List<(ulong, ulong)> seedsRange)
+{
+    foreach (var range in seedsRange)
+    {
+        if (range.Item1 <= seed && seed <= range.Item2) return true;
+    }
+
+    return false;
 }
 
 List<ulong> GetSeeds(string seedsLine)
@@ -47,29 +110,33 @@ List<ulong> GetSeeds(string seedsLine)
     return seeds;
 }
 
+List<(ulong, ulong)> GetSeedRanges(string seedsLine)
+{
+    var colonIndex = seedsLine.AsSpan().IndexOf(":") + 2;
+    var seeds = seedsLine.AsSpan()[colonIndex..].ToString()
+        .Split(" ")
+        .Select(x => ulong.Parse(x))
+        .ToArray();
+
+    var seedRanges = new List<(ulong, ulong)>();
+    var length = seeds.Length / 2;
+    for (var i = 0; i < length + 1; i = i + 2)
+    {
+        var start = seeds[i];
+        var range = seeds[i + 1] - 1;
+        var end = start + range;
+        
+        seedRanges.Add((start, end));
+    }
+
+    return seedRanges;
+}
+
 LookupMap BuildLookupMap(string category, string[] lines)
 {
     var categoryMaps = ReadCategoryMaps(category, lines).ToList();
 
     return new LookupMap(categoryMaps);
-}
-
-SuperDictionary BuildMap(string category, string[] lines)
-{
-    var output = new Dictionary<ulong, ulong>();
-    var categoryMaps = ReadCategoryMaps(category, lines).ToList();
-    foreach (var map in categoryMaps)
-    {
-        for (ulong i = 0; i < map.Range; i++)
-        {
-            var source = map.Source + i;
-            var destination = map.Destination + i;
-            //Console.WriteLine($"{category} - src: {source} : dest: {destination}, range: {map.Range}");
-            output[source] = destination;
-        }
-    }
-
-    return new SuperDictionary(output);
 }
 
 IEnumerable<CategoryMap> ReadCategoryMaps(string category, string[] lines)
@@ -107,23 +174,6 @@ IEnumerable<CategoryMap> ReadCategoryMaps(string category, string[] lines)
 
 public record CategoryMap(string Name, ulong Source, ulong Destination, ulong Range);
 
-public class SuperDictionary : Dictionary<ulong, ulong>
-{
-    private readonly Dictionary<ulong, ulong> _map;
-
-    public SuperDictionary(Dictionary<ulong, ulong> map)
-    {
-        _map = map;
-    }
-
-    public ulong Lookup(ulong source)
-    {
-        return _map.TryGetValue(source, out var destination) 
-            ? destination 
-            : source;
-    }
-}
-
 public class LookupMap
 {
     private readonly List<CategoryMap> _categoryMaps;
@@ -148,5 +198,33 @@ public class LookupMap
         }
 
         return source;
+    }
+
+    public ulong ReverseLookup(ulong destination)
+    {
+        foreach (var category in _categoryMaps)
+        {
+            ulong lowerDestination = category.Destination;
+            var upperDestination = category.Destination + category.Destination - 1;
+            if (lowerDestination <= destination && destination <= upperDestination)
+            {
+                var diff = destination - lowerDestination;
+                var source = category.Source + diff;
+                return source;
+            }
+        }
+
+        return destination;
+    }
+
+    public CategoryMap GetLowestDestination()
+    {
+        return _categoryMaps.OrderBy(x => x.Destination).First();
+    }
+
+    public CategoryMap GetOverlappingDestinationRange(CategoryMap dest)
+    {
+        return _categoryMaps.First(src 
+            => src.Destination + src.Range <= dest.Source + dest.Range);
     }
 }
