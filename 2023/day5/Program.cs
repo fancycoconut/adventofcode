@@ -55,8 +55,6 @@ void Part2(string filename)
     var humidityToLocationMap = BuildLookupMap("humidity-to-location", lines);
 
     var locations = new ConcurrentBag<ulong>();
-    var seedToLocationCache = new ConcurrentDictionary<ulong, ulong>();
-    
     var options = new ParallelOptions
     {
         MaxDegreeOfParallelism = Environment.ProcessorCount
@@ -66,12 +64,6 @@ void Part2(string filename)
     {
         for (var seed = range.Item1; seed <= range.Item2; seed++)
         {
-            if (seedToLocationCache.TryGetValue(seed, out var cachedLocation))
-            {
-                locations.Add(cachedLocation);
-                continue;
-            }
-            
             var soil = seedToSoilMap.Lookup(seed);
             var fertilizer = soilToFertilizerMap.Lookup(soil);
             var water = fertilizerToWaterMap.Lookup(fertilizer);
@@ -79,8 +71,7 @@ void Part2(string filename)
             var temperature = lightToTemperatureMap.Lookup(light);
             var humidity = temperatureToHumidityMap.Lookup(temperature);
             var location = humidityToLocationMap.Lookup(humidity);
-
-            seedToLocationCache[seed] = location;
+            
             locations.Add(location);
         }
     });
