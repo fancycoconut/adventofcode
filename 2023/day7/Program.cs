@@ -2,8 +2,10 @@
 
 Console.WriteLine("Hello, World!");
 
-Part1("sample.txt");
-Part1("input.txt");
+//Part1("sample.txt");
+//Part1("input.txt");
+Part2("sample.txt");
+Part2("input.txt");
 
 void Part1(string filename)
 {
@@ -18,6 +20,22 @@ void Part1(string filename)
     var totalWinnings = GetTotalWinnings(camelHands);
     
     Console.WriteLine($"Part 1 - the total winnings are {totalWinnings}");
+
+}
+
+void Part2(string filename)
+{
+    var camelHands = File.ReadLines(filename)
+        .Select(x => new CamelHandV2(x))
+        .ToArray();
+    
+    Array.Sort(camelHands);
+    
+    DumpHands($"{Directory.GetCurrentDirectory()}/input-dump.txt", camelHands);
+    
+    var totalWinnings = GetTotalWinnings(camelHands);
+    
+    Console.WriteLine($"Part 2 - the total winnings are {totalWinnings}");
 
 }
 
@@ -43,12 +61,118 @@ int GetTotalWinnings(CamelHand[] camelHands)
     return sum;
 }
 
+public class CamelHandV2(string raw) : CamelHand(raw)
+{
+    protected override int GetCardValue(char card)
+    {
+        return card switch
+        {
+            'J' => 1,
+            '2' => 2,
+            '3' => 3,
+            '4' => 4,
+            '5' => 5,
+            '6' => 6,
+            '7' => 7,
+            '8' => 8,
+            '9' => 9,
+            'T' => 10,
+            'Q' => 11,
+            'K' => 12,
+            'A' => 13,
+            _ => 0
+        };
+    }
+
+    protected override HandType InitializeHandType()
+    {
+        if (IsFiveOfAKind()) return HandType.FiveOfAKind;
+        if (IsFourOfAKind()) return HandType.FourOfAKind;
+        if (IsFullHouse()) return HandType.FullHouse;
+        if (IsThreeOfAKind()) return HandType.ThreeOfAKind;
+        if (IsTwoPair()) return HandType.TwoPair;
+        if (IsOnePair()) return HandType.OnePair;
+
+        return HandType.HighCard;
+    }
+
+    private bool IsFiveOfAKind()
+    {
+        if (_map.Values.Count == 1) return true;
+        // if (!_map.Keys.Contains('J')) return false;
+        //if (_map.ContainsKey('J') && _map['J'] == 1 && _map.Values.Count == 2) return true;
+
+        return false;
+    }
+
+    private bool IsFourOfAKind()
+    {
+        var topCount = _map.OrderByDescending(x => x.Value)
+            .Select(x => x.Value)
+            .First();
+        if (topCount == 4) return true;
+        if (!_map.Keys.Contains('J')) return false;
+        if (_map.ContainsKey('J') && _map['J'] == 2 && _map.Values.Count == 1) return true;
+        if (_map.ContainsKey('J') && _map['J'] == 2 && _map.Values.Count == 3) return true;
+
+        return false;
+    }
+    
+    protected override bool IsFullHouse()
+    {
+        var sortedCards = _map.OrderByDescending(x => x.Value)
+            .Select(x => x.Value)
+            .ToArray();
+
+        if (sortedCards[0] == 3 && sortedCards[1] == 2) return true;
+        if (!_map.Keys.Contains('J')) return false;
+        
+        return false;
+    }
+
+    private bool IsThreeOfAKind()
+    {
+        var topCount = _map.OrderByDescending(x => x.Value)
+            .Select(x => x.Value)
+            .First();
+
+        if (topCount == 3 && _map.Values.Count == 3) return true;
+        if (_map.ContainsKey('J') && _map['J'] == 2 && _map.Values.Count == 4) return true;
+        if (_map.ContainsKey('J') && _map['J'] == 1 && _map.Values.Count == 4) return true;
+        
+        return false;
+    }
+    
+    protected override bool IsTwoPair()
+    {
+        var sortedCards = _map.OrderByDescending(x => x.Value)
+            .Select(x => x.Value)
+            .ToArray();
+        
+        if (sortedCards[0] == 2 && sortedCards[1] == 2 && sortedCards[2] == 1) return true;
+        if (_map.ContainsKey('J') && _map['J'] == 1 && _map.Values.Count == 4) return true;
+
+        return false;
+    }
+    
+    protected override bool IsOnePair()
+    {
+        var sortedCards = _map.OrderByDescending(x => x.Value)
+            .Select(x => x.Value);
+
+        if (sortedCards.First() == 2 && _map.Values.Count == 4) return true;
+        if (_map.ContainsKey('J') && _map['J'] == 1 && _map.Values.Count == 4) return true;
+
+        return false;
+    }
+}
+
 public class CamelHand : IComparable<CamelHand>
 {
-    private readonly string _hand;
-    private readonly int _bid;
-    private readonly Dictionary<char, int> _map;
-    private readonly Lazy<HandType> _handType;
+    protected readonly string _hand;
+    protected readonly int _bid;
+    protected readonly Dictionary<char, int> _map;
+    protected readonly Lazy<HandType> _handType;
 
     public CamelHand(string raw)
     {
@@ -59,7 +183,7 @@ public class CamelHand : IComparable<CamelHand>
         _handType = new Lazy<HandType>(InitializeHandType());
     }
 
-    public int CompareTo(CamelHand? other)
+    public virtual int CompareTo(CamelHand? other)
     {
         if (other is null) return 1;
 
@@ -93,7 +217,7 @@ public class CamelHand : IComparable<CamelHand>
 
     public string Dump() => $"{_hand} {_handType.Value}";
 
-    private static int GetCardValue(char card)
+    protected virtual int GetCardValue(char card)
     {
         return card switch
         {
@@ -116,7 +240,7 @@ public class CamelHand : IComparable<CamelHand>
 
     private HandType GetHandType() => _handType.Value;
 
-    private HandType InitializeHandType()
+    protected virtual HandType InitializeHandType()
     {
         if (IsOfAKind(5)) return HandType.FiveOfAKind;
         if (IsOfAKind(4)) return HandType.FourOfAKind;
@@ -150,7 +274,7 @@ public class CamelHand : IComparable<CamelHand>
         }
     }
 
-    private bool IsFullHouse()
+    protected virtual bool IsFullHouse()
     {
         if (_map.Values.Count != 2) return false;
 
@@ -161,7 +285,7 @@ public class CamelHand : IComparable<CamelHand>
         return sortedCards[0] == 3 && sortedCards[1] == 2;
     }
 
-    private bool IsTwoPair()
+    protected virtual bool IsTwoPair()
     {
         if (_map.Values.Count != 3) return false;
         
@@ -172,7 +296,7 @@ public class CamelHand : IComparable<CamelHand>
         return sortedCards[0] == 2 && sortedCards[1] == 2 && sortedCards[2] == 1;
     }
     
-    private bool IsOnePair()
+    protected virtual bool IsOnePair()
     {
         if (_map.Values.Count != 4) return false;
 
