@@ -5,7 +5,8 @@ Console.WriteLine("Hello, World!");
 //Part1("sample.txt");
 //Part1("input.txt");
 Part2("sample.txt");
-Part2("input.txt");
+Part2("test.txt");
+//Part2("input.txt");
 
 void Part1(string filename)
 {
@@ -99,8 +100,11 @@ public class CamelHandV2(string raw) : CamelHand(raw)
     private bool IsFiveOfAKind()
     {
         if (_map.Values.Count == 1) return true;
-        // if (!_map.Keys.Contains('J')) return false;
-        //if (_map.ContainsKey('J') && _map['J'] == 1 && _map.Values.Count == 2) return true;
+        if (!_map.Keys.Contains('J')) return false;
+        if (_map.ContainsKey('J') && _map['J'] == 1 && _map.Values.Count == 2) return true;
+        if (_map.ContainsKey('J') && _map['J'] == 2 && _map.Values.Count == 2) return true;
+        if (_map.ContainsKey('J') && _map['J'] == 3 && _map.Values.Count == 2) return true;
+        if (_map.ContainsKey('J') && _map['J'] == 4 && _map.Values.Count == 2) return true;
 
         return false;
     }
@@ -112,8 +116,9 @@ public class CamelHandV2(string raw) : CamelHand(raw)
             .First();
         if (topCount == 4) return true;
         if (!_map.Keys.Contains('J')) return false;
-        if (_map.ContainsKey('J') && _map['J'] == 2 && _map.Values.Count == 1) return true;
+        if (_map.ContainsKey('J') && _map['J'] == 1 && _map.Values.Count == 3) return true;
         if (_map.ContainsKey('J') && _map['J'] == 2 && _map.Values.Count == 3) return true;
+        if (_map.ContainsKey('J') && _map['J'] == 3 && _map.Values.Count == 3) return true;
 
         return false;
     }
@@ -126,6 +131,8 @@ public class CamelHandV2(string raw) : CamelHand(raw)
 
         if (sortedCards[0] == 3 && sortedCards[1] == 2) return true;
         if (!_map.Keys.Contains('J')) return false;
+        if (_map.ContainsKey('J') && _map['J'] == 1 && _map.Values.Count == 3) return true;
+        if (_map.ContainsKey('J') && _map['J'] == 2 && _map.Values.Count == 3) return true;
         
         return false;
     }
@@ -137,8 +144,9 @@ public class CamelHandV2(string raw) : CamelHand(raw)
             .First();
 
         if (topCount == 3 && _map.Values.Count == 3) return true;
-        if (_map.ContainsKey('J') && _map['J'] == 2 && _map.Values.Count == 4) return true;
         if (_map.ContainsKey('J') && _map['J'] == 1 && _map.Values.Count == 4) return true;
+        if (_map.ContainsKey('J') && _map['J'] == 2 && _map.Values.Count == 4) return true;
+        if (_map.ContainsKey('J') && _map['J'] == 3 && _map.Values.Count == 3) return true;
         
         return false;
     }
@@ -151,6 +159,8 @@ public class CamelHandV2(string raw) : CamelHand(raw)
         
         if (sortedCards[0] == 2 && sortedCards[1] == 2 && sortedCards[2] == 1) return true;
         if (_map.ContainsKey('J') && _map['J'] == 1 && _map.Values.Count == 4) return true;
+        if (_map.ContainsKey('J') && _map['J'] == 2 && _map.Values.Count == 4) return true;
+        if (_map.ContainsKey('J') && _map['J'] == 3 && _map.Values.Count == 3) return true;
 
         return false;
     }
@@ -162,6 +172,7 @@ public class CamelHandV2(string raw) : CamelHand(raw)
 
         if (sortedCards.First() == 2 && _map.Values.Count == 4) return true;
         if (_map.ContainsKey('J') && _map['J'] == 1 && _map.Values.Count == 4) return true;
+        if (_map.ContainsKey('J') && _map['J'] == 2 && _map.Values.Count == 4) return true;
 
         return false;
     }
