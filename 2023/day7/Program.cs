@@ -2,11 +2,11 @@
 
 Console.WriteLine("Hello, World!");
 
-//Part1("sample.txt");
-//Part1("input.txt");
+Part1("sample.txt");
+Part1("input.txt");
 Part2("sample.txt");
 Part2("test.txt");
-//Part2("input.txt");
+Part2("input.txt");
 
 void Part1(string filename)
 {
@@ -32,7 +32,7 @@ void Part2(string filename)
     
     Array.Sort(camelHands);
     
-    DumpHands($"{Directory.GetCurrentDirectory()}/input-dump.txt", camelHands);
+    //DumpHands($"{Directory.GetCurrentDirectory()}/input-dump.txt", camelHands);
     
     var totalWinnings = GetTotalWinnings(camelHands);
     
@@ -87,94 +87,25 @@ public class CamelHandV2(string raw) : CamelHand(raw)
 
     protected override HandType InitializeHandType()
     {
-        if (IsFiveOfAKind()) return HandType.FiveOfAKind;
-        if (IsFourOfAKind()) return HandType.FourOfAKind;
-        if (IsFullHouse()) return HandType.FullHouse;
-        if (IsThreeOfAKind()) return HandType.ThreeOfAKind;
-        if (IsTwoPair()) return HandType.TwoPair;
-        if (IsOnePair()) return HandType.OnePair;
+        var numberOfWildcards = _map.TryGetValue('J', out var value)
+            ? value
+            : 0;
 
+        var topOrderedGroupOfCards = _map
+            .Where(x => x.Key != 'J')
+            .OrderByDescending(x => x.Value)
+            .ThenByDescending(x => GetCardValue(x.Key))
+            .ToList();
+        
+        if (!topOrderedGroupOfCards.Any()) return HandType.FiveOfAKind;
+        if (topOrderedGroupOfCards.First().Value + numberOfWildcards == 5) return HandType.FiveOfAKind;
+        if (topOrderedGroupOfCards.First().Value + numberOfWildcards == 4) return HandType.FourOfAKind;
+        if (topOrderedGroupOfCards.First().Value + numberOfWildcards == 3 && topOrderedGroupOfCards.Count == 2) return HandType.FullHouse;
+        if (topOrderedGroupOfCards.First().Value + numberOfWildcards == 3 && topOrderedGroupOfCards.Count == 3) return HandType.ThreeOfAKind;
+        if (topOrderedGroupOfCards.First().Value + numberOfWildcards == 2 && topOrderedGroupOfCards.Count == 3) return HandType.TwoPair;
+        if (topOrderedGroupOfCards.First().Value + numberOfWildcards == 2 && topOrderedGroupOfCards.Count == 4) return HandType.OnePair;
+        
         return HandType.HighCard;
-    }
-
-    private bool IsFiveOfAKind()
-    {
-        if (_map.Values.Count == 1) return true;
-        if (!_map.Keys.Contains('J')) return false;
-        if (_map.ContainsKey('J') && _map['J'] == 1 && _map.Values.Count == 2) return true;
-        if (_map.ContainsKey('J') && _map['J'] == 2 && _map.Values.Count == 2) return true;
-        if (_map.ContainsKey('J') && _map['J'] == 3 && _map.Values.Count == 2) return true;
-        if (_map.ContainsKey('J') && _map['J'] == 4 && _map.Values.Count == 2) return true;
-
-        return false;
-    }
-
-    private bool IsFourOfAKind()
-    {
-        var topCount = _map.OrderByDescending(x => x.Value)
-            .Select(x => x.Value)
-            .First();
-        if (topCount == 4) return true;
-        if (!_map.Keys.Contains('J')) return false;
-        if (_map.ContainsKey('J') && _map['J'] == 1 && _map.Values.Count == 3) return true;
-        if (_map.ContainsKey('J') && _map['J'] == 2 && _map.Values.Count == 3) return true;
-        if (_map.ContainsKey('J') && _map['J'] == 3 && _map.Values.Count == 3) return true;
-
-        return false;
-    }
-    
-    protected override bool IsFullHouse()
-    {
-        var sortedCards = _map.OrderByDescending(x => x.Value)
-            .Select(x => x.Value)
-            .ToArray();
-
-        if (sortedCards[0] == 3 && sortedCards[1] == 2) return true;
-        if (!_map.Keys.Contains('J')) return false;
-        if (_map.ContainsKey('J') && _map['J'] == 1 && _map.Values.Count == 3) return true;
-        if (_map.ContainsKey('J') && _map['J'] == 2 && _map.Values.Count == 3) return true;
-        
-        return false;
-    }
-
-    private bool IsThreeOfAKind()
-    {
-        var topCount = _map.OrderByDescending(x => x.Value)
-            .Select(x => x.Value)
-            .First();
-
-        if (topCount == 3 && _map.Values.Count == 3) return true;
-        if (_map.ContainsKey('J') && _map['J'] == 1 && _map.Values.Count == 4) return true;
-        if (_map.ContainsKey('J') && _map['J'] == 2 && _map.Values.Count == 4) return true;
-        if (_map.ContainsKey('J') && _map['J'] == 3 && _map.Values.Count == 3) return true;
-        
-        return false;
-    }
-    
-    protected override bool IsTwoPair()
-    {
-        var sortedCards = _map.OrderByDescending(x => x.Value)
-            .Select(x => x.Value)
-            .ToArray();
-        
-        if (sortedCards[0] == 2 && sortedCards[1] == 2 && sortedCards[2] == 1) return true;
-        if (_map.ContainsKey('J') && _map['J'] == 1 && _map.Values.Count == 4) return true;
-        if (_map.ContainsKey('J') && _map['J'] == 2 && _map.Values.Count == 4) return true;
-        if (_map.ContainsKey('J') && _map['J'] == 3 && _map.Values.Count == 3) return true;
-
-        return false;
-    }
-    
-    protected override bool IsOnePair()
-    {
-        var sortedCards = _map.OrderByDescending(x => x.Value)
-            .Select(x => x.Value);
-
-        if (sortedCards.First() == 2 && _map.Values.Count == 4) return true;
-        if (_map.ContainsKey('J') && _map['J'] == 1 && _map.Values.Count == 4) return true;
-        if (_map.ContainsKey('J') && _map['J'] == 2 && _map.Values.Count == 4) return true;
-
-        return false;
     }
 }
 
