@@ -29,8 +29,7 @@ void Part2(string filename)
     var startingNodes = networkMap.Keys.Where(x => x.EndsWith('A'));
     
     var multiples = startingNodes
-        .Select(node
-            => GetMultiplesOfEndingNodes(node, instruction, networkMap).First())
+        .Select(node => GetMultiplesOfEndingNodes(node, instruction, networkMap))
         .ToList();
 
     var leastCommonMultiple = multiples.LeastCommonMultiple();
@@ -40,13 +39,11 @@ void Part2(string filename)
     Console.WriteLine($"Part 2 - Number of steps to simultaneously reach all nodes that end with Z: {leastCommonMultiple}");
 }
 
-IEnumerable<ulong> GetMultiplesOfEndingNodes(string startNode, string instruction, Dictionary<string, (string, string)> map)
+ulong GetMultiplesOfEndingNodes(string startNode, string instruction, Dictionary<string, (string, string)> map)
 {
     ulong steps = 0;
-    var numOfTimes = 0;
-    
     var currentPosition = startNode;
-    while (numOfTimes < 1)
+    while (true)
     {
         foreach (var direction in instruction)
         {
@@ -56,11 +53,7 @@ IEnumerable<ulong> GetMultiplesOfEndingNodes(string startNode, string instructio
                 currentPosition = map[currentPosition].Item2;
             
             steps++;
-            if (currentPosition.EndsWith('Z'))
-            {
-                numOfTimes++;
-                yield return steps;
-            }
+            if (currentPosition.EndsWith('Z')) return steps;
         }
     }
 }
