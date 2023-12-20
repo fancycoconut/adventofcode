@@ -379,3 +379,6 @@ Cargo.lock
 
 # Rider
 .idea/
+
+# Rust
+.rustc_info.json

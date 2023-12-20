@@ -62,13 +62,15 @@ XXX = (XXX, XXX)
 Here, there are two starting nodes, 11A and 22A (because they both end with A). As you follow each left/right instruction, use that instruction to simultaneously navigate away from both nodes you're currently on. Repeat this process until all of the nodes you're currently on end with Z. (If only some of the nodes you're on end with Z, they act like any other node and you continue as normal.) In this example, you would proceed as follows:
 
 - Step 0: You are at 11A and 22A.
-- Step 1: You choose all of the left paths, leading you to 11B and 22B.
-- Step 2: You choose all of the right paths, leading you to 11Z and 22C.
-- Step 3: You choose all of the left paths, leading you to 11B and 22Z.
-- Step 4: You choose all of the right paths, leading you to 11Z and 22B.
-- Step 5: You choose all of the left paths, leading you to 11B and 22C.
-- Step 6: You choose all of the right paths, leading you to 11Z and 22Z.
+- Step 1: You choose all of the *left* paths, leading you to `11B` and `22B`.
+- Step 2: You choose all of the *right* paths, leading you to `11Z` and `22C`.
+- Step 3: You choose all of the *left* paths, leading you to `11B` and `22Z`.
+- Step 4: You choose all of the *right* paths, leading you to `11Z` and `22B`.
+- Step 5: You choose all of the *left* paths, leading you to `11B` and `22C`.
+- Step 6: You choose all of the *right* paths, leading you to `11Z` and `22Z`.
 
 So, in this example, you end up entirely on nodes that end in Z after 6 steps.
 
 Simultaneously start on every node that ends with A. **How many steps does it take before you're only on nodes that end with `Z`?**
+
+Your puzzle answer was `10371555451871`.
