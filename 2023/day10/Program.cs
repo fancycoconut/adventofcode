@@ -10,75 +10,50 @@ void Part1(string filename)
 {
     var map = ParseMap(filename);
     var startingPosition = FindStartingPosition(map);
-    
-    NavigateMap(startingPosition, map);
+    var stepTracker = new Dictionary<(int x, int y), int>();
+
+
+    NavigateMap(startingPosition, map, stepTracker);
     
     DumpMap($"{Directory.GetCurrentDirectory()}/input-dump.txt", map);
 }
 
-void NavigateMap((int x, int y) startingPoint, char[,] map, int currentStep = 0, Direction cameFromDirection = Direction.Unknown)
+void NavigateMap((int x, int y) startingPoint, char[,] map, Dictionary<(int x, int y), int> stepTracker, int currentStep = 0, Direction cameFromDirection = Direction.Unknown)
 {
-    // var possibleMoves = new Queue<(int x, int y, int currentStep)>();
-    //
-    // var start = (startingPoint.x, startingPoint.y, 0);
-    // possibleMoves.Enqueue(start);
-    // while (possibleMoves.Any())
-    // {
-    //     var currentPosition = possibleMoves.Dequeue();
-    //     
-    //     if (CanMoveUp(currentPosition.x, currentPosition.y, map))
-    //     {
-    //         var upPosition = (startingPoint.x, startingPoint.y - 1, currentPosition.currentStep++);
-    //         possibleMoves.Enqueue(upPosition);
-    //     }
-    //     
-    //     if (CanMoveDown(currentPosition.x, currentPosition.y, map))
-    //     {
-    //         var downPosition = (startingPoint.x, startingPoint.y + 1, currentPosition.currentStep++);
-    //         possibleMoves.Enqueue(downPosition);
-    //     }
-    //     
-    //     if (CanMoveLeft(currentPosition.x, currentPosition.y, map))
-    //     {
-    //         var leftPosition = (startingPoint.x - 1, startingPoint.y, currentPosition.currentStep++);
-    //         possibleMoves.Enqueue(leftPosition);
-    //     }
-    //     
-    //     if (CanMoveRight(currentPosition.x, currentPosition.y, map))
-    //     {
-    //         var rightPosition = (startingPoint.x + 1, startingPoint.y, currentPosition.currentStep++);
-    //         possibleMoves.Enqueue(rightPosition);
-    //     }
-    //     
-    //     map[currentPosition.x, currentPosition.y] = currentPosition.currentStep.ToString().First();
-    // }
+    var x = startingPoint.x;
+    var y = startingPoint.y;
+    if (stepTracker.ContainsKey(startingPoint)) return;
 
-    var currentPosition = startingPoint;
-    if (CanMoveUp(currentPosition.x, currentPosition.y, map) && cameFromDirection != Direction.Down)
+    if (CanMoveUp(x, y, map) && cameFromDirection != Direction.Up)
     {
-        var upPosition = (currentPosition.x, currentPosition.y - 1);
-        NavigateMap(upPosition, map, currentStep++, Direction.Down);
+        var upPosition = (x, y - 1);
+        NavigateMap(upPosition, map, stepTracker, currentStep + 1, Direction.Down);
     }
-    
-    if (CanMoveDown(currentPosition.x, currentPosition.y, map) && cameFromDirection != Direction.Up)
+
+    if (CanMoveDown(x, y, map) && cameFromDirection != Direction.Down)
     {
-        var downPosition = (currentPosition.x, currentPosition.y + 1);
-        NavigateMap(downPosition, map, currentStep++, Direction.Up);
+        var downPosition = (x, y + 1);
+        NavigateMap(downPosition, map, stepTracker, currentStep + 1, Direction.Up);
     }
-    
-    if (CanMoveLeft(currentPosition.x, currentPosition.y, map) && cameFromDirection != Direction.Right)
+
+    if (CanMoveLeft(x, y, map) && cameFromDirection != Direction.Left)
     {
-        var leftPosition = (currentPosition.x - 1, currentPosition.y);
-        NavigateMap(leftPosition, map, currentStep++, Direction.Right);
+        var leftPosition = (x - 1, y);
+        NavigateMap(leftPosition, map, stepTracker, currentStep + 1, Direction.Right);
     }
-    
-    if (CanMoveRight(currentPosition.x, currentPosition.y, map) && cameFromDirection != Direction.Left)
+
+    if (CanMoveRight(x, y, map) && cameFromDirection != Direction.Right)
     {
-        var rightPosition = (currentPosition.x + 1, currentPosition.y);
-        NavigateMap(rightPosition, map, currentStep++, Direction.Left);
+        var rightPosition = (x + 1, y);
+        NavigateMap(rightPosition, map, stepTracker, currentStep + 1, Direction.Left);
     }
-    
-    map[currentPosition.x, currentPosition.y] = currentStep.ToString().First();
+
+    if (stepTracker.ContainsKey(startingPoint))
+        stepTracker[startingPoint] += 1;
+    else
+        stepTracker[startingPoint] = 1;
+
+    map[x, y] = currentStep.ToString().First();
 }
 
 void DumpMap(string filename, char[,] map)
