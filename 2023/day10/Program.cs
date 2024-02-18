@@ -1,92 +1,92 @@
-﻿// See https://aka.ms/new-console-template for more information
-
-using System.Text;
-
+﻿
 Console.WriteLine("Hello, World!");
 
 Part1("sample.txt");
+Part1("sample2.txt");
+Part1("input.txt");
 
 void Part1(string filename)
 {
     var map = ParseMap(filename);
     var startingPosition = FindStartingPosition(map);
-    var stepTracker = new Dictionary<(int x, int y), int>();
 
+    var visitedLocations = new HashSet<(int, int)>();
+    BreadthFirstSearch(startingPosition, map, visitedLocations);
 
-    NavigateMap(startingPosition, map, stepTracker);
-    
-    DumpMap($"{Directory.GetCurrentDirectory()}/input-dump.txt", map);
+    var farthestNode = visitedLocations.Count;
+    Console.WriteLine($"The furtherst node is: {farthestNode / 2}");
 }
 
-void NavigateMap((int x, int y) startingPoint, char[,] map, Dictionary<(int x, int y), int> stepTracker, int currentStep = 0, Direction cameFromDirection = Direction.Unknown)
+void BreadthFirstSearch((int x, int y) startPosition, char[,] map, HashSet<(int, int)> visitedNodes)
 {
-    var x = startingPoint.x;
-    var y = startingPoint.y;
-    if (stepTracker.ContainsKey(startingPoint)) return;
+    var queue = new Queue<(int, int)>();
 
-    if (CanMoveUp(x, y, map) && cameFromDirection != Direction.Up)
+    queue.Enqueue(startPosition);
+    visitedNodes.Add(startPosition);
+
+    while (queue.Any())
     {
-        var upPosition = (x, y - 1);
-        NavigateMap(upPosition, map, stepTracker, currentStep + 1, Direction.Down);
-    }
+        var currentPosition = queue.Dequeue();
 
-    if (CanMoveDown(x, y, map) && cameFromDirection != Direction.Down)
-    {
-        var downPosition = (x, y + 1);
-        NavigateMap(downPosition, map, stepTracker, currentStep + 1, Direction.Up);
-    }
-
-    if (CanMoveLeft(x, y, map) && cameFromDirection != Direction.Left)
-    {
-        var leftPosition = (x - 1, y);
-        NavigateMap(leftPosition, map, stepTracker, currentStep + 1, Direction.Right);
-    }
-
-    if (CanMoveRight(x, y, map) && cameFromDirection != Direction.Right)
-    {
-        var rightPosition = (x + 1, y);
-        NavigateMap(rightPosition, map, stepTracker, currentStep + 1, Direction.Left);
-    }
-
-    if (stepTracker.ContainsKey(startingPoint))
-        stepTracker[startingPoint] += 1;
-    else
-        stepTracker[startingPoint] = 1;
-
-    map[x, y] = currentStep.ToString().First();
-}
-
-void DumpMap(string filename, char[,] map)
-{
-    var height = map.GetLength(0);
-    var width = map.GetLength(1);
-
-    
-    var sb = new StringBuilder();
-    using var writer = new StreamWriter(filename);
-
-    for (var y = 0; y < height; y++)
-    {
-        sb.Clear();
-        for (var x = 0; x < width; x++)
+        foreach (var edge in GetAdjacentEdges(currentPosition, map))
         {
-            sb.Append(map[x, y]);
+            if (visitedNodes.Contains(edge)) continue;
+            visitedNodes.Add(edge);
+            queue.Enqueue(edge);
         }
-        
-        writer.WriteLine(sb.ToString());
     }
+}
+
+List<(int, int)> GetAdjacentEdges((int x, int y) currentPosition, char[,] map)
+{
+    var adjacentEdges = new List<(int, int)>();
+
+    var x = currentPosition.x;
+    var y = currentPosition.y;
+    if (CanMoveUp(x, y, map))
+    {
+        adjacentEdges.Add((x, y - 1));
+    }
+
+    if (CanMoveDown(x, y, map))
+    {
+        adjacentEdges.Add((x, y + 1));
+    }
+
+    if (CanMoveLeft(x, y, map))
+    {
+        adjacentEdges.Add((x - 1, y));
+    }
+
+    if (CanMoveRight(x, y, map))
+    {
+        adjacentEdges.Add((x + 1, y));
+    }
+
+    return adjacentEdges;
 }
 
 bool CanMoveUp(int x, int y, char[,] map)
 {
     if (y - 1 < 0) return false;
 
-    var tile = map[x, y - 1];
-    return tile switch
+    var current = map[x, y];
+    var target = map[x, y - 1];
+
+    return (current, target) switch
     {
-        '|' => true,
-        'F' => true,
-        '7' => true,
+        ('|', 'F') => true,
+        ('|', '|') => true,
+        ('|', '7') => true,
+        ('L', 'F') => true,
+        ('L', '|') => true,
+        ('L', '7') => true,
+        ('J', 'F') => true,
+        ('J', '|') => true,
+        ('J', '7') => true,
+        ('S', 'F') => true,
+        ('S', '|') => true,
+        ('S', '7') => true,
         _ => false
     };
 }
@@ -94,14 +94,25 @@ bool CanMoveUp(int x, int y, char[,] map)
 bool CanMoveDown(int x, int y, char[,] map)
 {
     var height = map.GetLength(0);
-    if (y + 1 > height) return false;
-    
-    var tile = map[x, y + 1];
-    return tile switch
+    if (y + 1 >= height) return false;
+
+    var current = map[x, y];
+    var target = map[x, y + 1];
+
+    return (current, target) switch
     {
-        '|' => true,
-        'J' => true,
-        'L' => true,
+        ('|', 'L') => true,
+        ('|', '|') => true,
+        ('|', 'J') => true,
+        ('F', 'L') => true,
+        ('F', '|') => true,
+        ('F', 'J') => true,
+        ('7', 'L') => true,
+        ('7', '|') => true,
+        ('7', 'J') => true,
+        ('S', 'L') => true,
+        ('S', '|') => true,
+        ('S', 'J') => true,
         _ => false
     };
 }
@@ -109,13 +120,24 @@ bool CanMoveDown(int x, int y, char[,] map)
 bool CanMoveLeft(int x, int y, char[,] map)
 {
     if (x - 1 < 0) return false;
-    
-    var tile = map[x - 1, y];
-    return tile switch
+
+    var current = map[x, y];
+    var target = map[x - 1, y];
+
+    return (current, target) switch
     {
-        '-' => true,
-        'L' => true,
-        'F' => true,
+        ('-', 'F') => true,
+        ('-', '-') => true,
+        ('-', 'L') => true,
+        ('7', 'F') => true,
+        ('7', '-') => true,
+        ('7', 'L') => true,
+        ('J', 'F') => true,
+        ('J', '-') => true,
+        ('J', 'L') => true,
+        ('S', 'F') => true,
+        ('S', '-') => true,
+        ('S', 'L') => true,
         _ => false
     };
 }
@@ -123,14 +145,25 @@ bool CanMoveLeft(int x, int y, char[,] map)
 bool CanMoveRight(int x, int y, char[,] map)
 {
     var width = map.GetLength(1);
-    if (x + 1 > width) return false;
-    
-    var tile = map[x + 1, y];
-    return tile switch
+    if (x + 1 >= width) return false;
+
+    var current = map[x, y];
+    var target = map[x + 1, y];
+
+    return (current, target) switch
     {
-        '-' => true,
-        'J' => true,
-        '7' => true,
+        ('-', '7') => true,
+        ('-', '-') => true,
+        ('-', 'J') => true,
+        ('F', '7') => true,
+        ('F', '-') => true,
+        ('F', 'J') => true,
+        ('L', '7') => true,
+        ('L', '-') => true,
+        ('L', 'J') => true,
+        ('S', '7') => true,
+        ('S', '-') => true,
+        ('S', 'J') => true,
         _ => false
     };
 }
@@ -172,15 +205,6 @@ char[,] ParseMap(string filename)
         y++;
         x = 0;
     }
-    
-    return map;
-}
 
-public enum Direction
-{
-    Unknown,
-    Up,
-    Down,
-    Left,
-    Right
+    return map;
 }
