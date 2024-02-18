@@ -5,6 +5,8 @@ Part1("sample.txt");
 Part1("sample2.txt");
 Part1("input.txt");
 
+Part2("part2-sample1.txt");
+
 void Part1(string filename)
 {
     var map = ParseMap(filename);
@@ -14,7 +16,40 @@ void Part1(string filename)
     BreadthFirstSearch(startingPosition, map, visitedLocations);
 
     var farthestNode = visitedLocations.Count;
-    Console.WriteLine($"The furtherst node is: {farthestNode / 2}");
+    Console.WriteLine($"Part 1 - The furtherst node is: {farthestNode / 2}");
+}
+
+void Part2(string filename)
+{
+    var map = ParseMap(filename);
+    var startingPosition = FindStartingPosition(map);
+
+    var visitedLocations = new HashSet<(int, int)>();
+    BreadthFirstSearch(startingPosition, map, visitedLocations);
+
+    var enclosedTiles = CalculateEnclosedTiles(map, visitedLocations);
+
+    Console.WriteLine($"Part 2 - Number of enclosed tiles: {enclosedTiles}");
+}
+
+int CalculateEnclosedTiles(char[,] map, HashSet<(int, int)> visitedLocations)
+{
+    var sum = 0;
+    var width = map.GetLength(1);
+    var height = map.GetLength(0);
+
+    for (var y = 0; y < height; y++)
+    {
+        for (var x = 0; x < width; x++)
+        {
+            if (!visitedLocations.Contains((x, y)))
+            {
+                sum++;
+            }
+        }
+    }
+
+    return sum;
 }
 
 void BreadthFirstSearch((int x, int y) startPosition, char[,] map, HashSet<(int, int)> visitedNodes)
