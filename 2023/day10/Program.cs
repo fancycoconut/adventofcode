@@ -1,4 +1,6 @@
 ﻿
+using System.Linq;
+
 Console.WriteLine("Hello, World!");
 
 Part1("sample.txt");
@@ -6,6 +8,7 @@ Part1("sample2.txt");
 Part1("input.txt");
 
 Part2("part2-sample1.txt");
+Part2("part2-sample2.txt");
 
 void Part1(string filename)
 {
@@ -36,8 +39,8 @@ void Part2(string filename)
 
 char DeriveStartPositionPipe((int x, int y) startPosition, char[,] map)
 {
-    var width = map.GetLength(1);
-    var height = map.GetLength(0);
+    var width = map.GetLength(0);
+    var height = map.GetLength(1);
 
     var topPosition = (startPosition.x, startPosition.y - 1 < 0 ? 0 : startPosition.y - 1);
     var bottomPosition = (startPosition.x, startPosition.y + 1 >= height ? height - 1 : startPosition.y + 1);
@@ -63,6 +66,7 @@ char DeriveStartPositionPipe((int x, int y) startPosition, char[,] map)
     {
         return 'J';
     }
+
 
     throw new InvalidOperationException("Unable to derive start position");
 }

@@ -11,6 +11,9 @@
     <None Update="part2-sample1.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="part2-sample2.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="sample.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
