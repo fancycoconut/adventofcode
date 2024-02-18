@@ -32,9 +32,22 @@ void Part2(string filename)
     Console.WriteLine($"Part 2 - Number of enclosed tiles: {enclosedTiles}");
 }
 
+char DeriveStartPositionPipe((int x, int y) startPosition, char[,] map)
+{
+    var width = map.GetLength(1);
+    var height = map.GetLength(0);
+
+    var topPosition = (startPosition.x, startPosition.y - 1 < 0 ? 0 : startPosition.y - 1);
+    var bottomPosition = (startPosition.x, startPosition.y + 1 >= height ? height - 1 : startPosition.y + 1);
+    var leftPosition = (startPosition.x - 1 < 0 ? 0 : startPosition.x - 1, startPosition.y);
+    var rightPosition = (startPosition.x + 1 >= width ? width - 1 : startPosition.x + 1, startPosition.y);
+
+
+}
+
 int CalculateEnclosedTiles(char[,] map, HashSet<(int, int)> visitedLocations)
 {
-    var sum = 0;
+    var numOfEnclosedTiles = 0;
     var width = map.GetLength(1);
     var height = map.GetLength(0);
 
@@ -42,14 +55,46 @@ int CalculateEnclosedTiles(char[,] map, HashSet<(int, int)> visitedLocations)
     {
         for (var x = 0; x < width; x++)
         {
-            if (!visitedLocations.Contains((x, y)))
+            var currentPosition = (x, y);
+            var numOfIntersections = RayCastingNumberOfIntersectionsFromLeft(currentPosition, map, visitedLocations);
+
+            if (numOfIntersections % 2 != 0)
             {
-                sum++;
+                numOfEnclosedTiles++;
             }
         }
     }
 
-    return sum;
+    return numOfEnclosedTiles;
+}
+
+// Ray casting algorithm
+// https://en.wikipedia.org/wiki/Point_in_polygon
+// One simple way of finding whether the point is inside or outside a simple polygon is to test how many times a ray,
+// starting from the point and going in any fixed direction, intersects the edges of the polygon. If the point is on
+// the outside of the polygon the ray will intersect its edge an even number of times. If the point is on the inside
+// of the polygon then it will intersect the edge an odd number of times.
+int RayCastingNumberOfIntersectionsFromLeft((int, int) currentPosition, char[,] map, HashSet<(int, int)> visitedLocations)
+{
+    // We can just count all the vertical pipes and corners in a straight line
+    var numberOfEdges = 0;
+    var width = map.GetLength(1);
+
+    var currentTile = map[currentPosition.Item1, currentPosition.Item2];
+    if (currentTile != '.') return -1;
+
+    for (var x = currentPosition.Item1; x < width; x++)
+    {
+        var tile = map[x, currentPosition.Item2];
+        var pipeIsAVistedLocation = visitedLocations.Contains((x, currentPosition.Item2));
+
+        if ("F|7LJ".Contains(tile) && pipeIsAVistedLocation)
+        {
+            numberOfEdges++;
+        }
+    }
+
+    return numberOfEdges;
 }
 
 void BreadthFirstSearch((int x, int y) startPosition, char[,] map, HashSet<(int, int)> visitedNodes)
