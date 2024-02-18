@@ -23,6 +23,8 @@ void Part2(string filename)
 {
     var map = ParseMap(filename);
     var startingPosition = FindStartingPosition(map);
+    var startingPipe = DeriveStartPositionPipe(startingPosition, map);
+    map[startingPosition.Item1, startingPosition.Item2] = startingPipe;
 
     var visitedLocations = new HashSet<(int, int)>();
     BreadthFirstSearch(startingPosition, map, visitedLocations);
@@ -42,14 +44,34 @@ char DeriveStartPositionPipe((int x, int y) startPosition, char[,] map)
     var leftPosition = (startPosition.x - 1 < 0 ? 0 : startPosition.x - 1, startPosition.y);
     var rightPosition = (startPosition.x + 1 >= width ? width - 1 : startPosition.x + 1, startPosition.y);
 
+    if ("-J7".Contains(map[rightPosition.Item1, rightPosition.y]) && "|JL".Contains(map[bottomPosition.Item1, bottomPosition.Item2]))
+    {
+        return 'F';
+    }
 
+    if ("-LF".Contains(map[leftPosition.Item1, leftPosition.y]) && "|JL".Contains(map[bottomPosition.Item1, bottomPosition.Item2]))
+    {
+        return '7';
+    }
+
+    if ("|7F".Contains(map[topPosition.Item1, topPosition.Item2]) && "7-J".Contains(map[rightPosition.Item1, rightPosition.y]))
+    {
+        return 'L';
+    }
+
+    if ("|7F".Contains(map[topPosition.Item1, topPosition.Item2]) && "F-L".Contains(map[leftPosition.Item1, leftPosition.y]))
+    {
+        return 'J';
+    }
+
+    throw new InvalidOperationException("Unable to derive start position");
 }
 
 int CalculateEnclosedTiles(char[,] map, HashSet<(int, int)> visitedLocations)
 {
     var numOfEnclosedTiles = 0;
-    var width = map.GetLength(1);
-    var height = map.GetLength(0);
+    var width = map.GetLength(0);
+    var height = map.GetLength(1);
 
     for (var y = 0; y < height; y++)
     {
@@ -78,17 +100,17 @@ int RayCastingNumberOfIntersectionsFromLeft((int, int) currentPosition, char[,] 
 {
     // We can just count all the vertical pipes and corners in a straight line
     var numberOfEdges = 0;
-    var width = map.GetLength(1);
+    var width = map.GetLength(0);
 
     var currentTile = map[currentPosition.Item1, currentPosition.Item2];
-    if (currentTile != '.') return -1;
+    if (currentTile != '.') return 0;
 
     for (var x = currentPosition.Item1; x < width; x++)
     {
         var tile = map[x, currentPosition.Item2];
         var pipeIsAVistedLocation = visitedLocations.Contains((x, currentPosition.Item2));
 
-        if ("F|7LJ".Contains(tile) && pipeIsAVistedLocation)
+        if ("IFL".Contains(tile) && pipeIsAVistedLocation)
         {
             numberOfEdges++;
         }
@@ -173,7 +195,7 @@ bool CanMoveUp(int x, int y, char[,] map)
 
 bool CanMoveDown(int x, int y, char[,] map)
 {
-    var height = map.GetLength(0);
+    var height = map.GetLength(1);
     if (y + 1 >= height) return false;
 
     var current = map[x, y];
@@ -224,7 +246,7 @@ bool CanMoveLeft(int x, int y, char[,] map)
 
 bool CanMoveRight(int x, int y, char[,] map)
 {
-    var width = map.GetLength(1);
+    var width = map.GetLength(0);
     if (x + 1 >= width) return false;
 
     var current = map[x, y];
@@ -250,8 +272,8 @@ bool CanMoveRight(int x, int y, char[,] map)
 
 (int, int) FindStartingPosition(char[,] map)
 {
-    var height = map.GetLength(0);
-    var width = map.GetLength(1);
+    var width = map.GetLength(0);
+    var height = map.GetLength(1);
 
     for (var y = 0; y < height; y++)
     {
