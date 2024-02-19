@@ -1,14 +1,14 @@
-﻿
-using System.Linq;
-
-Console.WriteLine("Hello, World!");
+﻿Console.WriteLine("Hello, World!");
 
 Part1("sample.txt");
 Part1("sample2.txt");
 Part1("input.txt");
 
+Part2("sample.txt");
 Part2("part2-sample1.txt");
 Part2("part2-sample2.txt");
+Part2("part2-sample3.txt");
+Part2("input.txt");
 
 void Part1(string filename)
 {
@@ -84,7 +84,7 @@ int CalculateEnclosedTiles(char[,] map, HashSet<(int, int)> visitedLocations)
             var currentPosition = (x, y);
             var numOfIntersections = RayCastingNumberOfIntersectionsFromLeft(currentPosition, map, visitedLocations);
 
-            if (numOfIntersections % 2 != 0)
+            if (numOfIntersections % 2 == 1)
             {
                 numOfEnclosedTiles++;
             }
@@ -113,8 +113,9 @@ int RayCastingNumberOfIntersectionsFromLeft((int x, int y) currentPosition, char
     {
         var tile = map[x, currentPosition.y];
         var pipeIsAVistedLocation = visitedLocations.Contains((x, currentPosition.y));
+        if (!pipeIsAVistedLocation) continue;
 
-        if ("IFL".Contains(tile) && pipeIsAVistedLocation)
+        if ("|JL".Contains(tile))
         {
             numberOfEdges++;
         }
