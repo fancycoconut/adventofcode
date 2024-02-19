@@ -100,19 +100,19 @@ int CalculateEnclosedTiles(char[,] map, HashSet<(int, int)> visitedLocations)
 // starting from the point and going in any fixed direction, intersects the edges of the polygon. If the point is on
 // the outside of the polygon the ray will intersect its edge an even number of times. If the point is on the inside
 // of the polygon then it will intersect the edge an odd number of times.
-int RayCastingNumberOfIntersectionsFromLeft((int, int) currentPosition, char[,] map, HashSet<(int, int)> visitedLocations)
+int RayCastingNumberOfIntersectionsFromLeft((int x, int y) currentPosition, char[,] map, HashSet<(int, int)> visitedLocations)
 {
     // We can just count all the vertical pipes and corners in a straight line
     var numberOfEdges = 0;
     var width = map.GetLength(0);
 
-    var currentTile = map[currentPosition.Item1, currentPosition.Item2];
+    var currentTile = map[currentPosition.x, currentPosition.y];
     if (currentTile != '.') return 0;
 
-    for (var x = currentPosition.Item1; x < width; x++)
+    for (var x = currentPosition.x + 1; x < width; x++)
     {
-        var tile = map[x, currentPosition.Item2];
-        var pipeIsAVistedLocation = visitedLocations.Contains((x, currentPosition.Item2));
+        var tile = map[x, currentPosition.y];
+        var pipeIsAVistedLocation = visitedLocations.Contains((x, currentPosition.y));
 
         if ("IFL".Contains(tile) && pipeIsAVistedLocation)
         {
