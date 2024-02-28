@@ -105,15 +105,15 @@ int RayCastingNumberOfIntersectionsFromLeft((int x, int y) currentPosition, char
     // We can just count all the vertical pipes and corners in a straight line
     var numberOfEdges = 0;
     var width = map.GetLength(0);
+    
+    if (visitedLocations.Contains(currentPosition)) return 0;
 
-    var currentTile = map[currentPosition.x, currentPosition.y];
-    if (currentTile != '.') return 0;
-
-    for (var x = currentPosition.x + 1; x < width; x++)
+    for (var x = currentPosition.x; x < width; x++)
     {
         var tile = map[x, currentPosition.y];
-        var pipeIsAVistedLocation = visitedLocations.Contains((x, currentPosition.y));
-        if (!pipeIsAVistedLocation) continue;
+        
+        var pipeIsAVisitedLocation = visitedLocations.Contains((x, currentPosition.y));
+        if (!pipeIsAVisitedLocation) continue;
 
         if ("|JL".Contains(tile))
         {
