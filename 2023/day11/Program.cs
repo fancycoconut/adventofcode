@@ -12,7 +12,11 @@ void Part1(string filename)
     var rowsWithoutGalaxies = GetRowsWithoutGalaxies(aoc).ToHashSet();
 
     var expansionFactor = 2;
-    var galaxies = FindGalaxies(aoc, expansionFactor, columnsWithoutGalaxies, rowsWithoutGalaxies).ToList();
+    var galaxiesBeforeExpansion = FindGalaxies(aoc).ToList();
+    
+    // 3,0 => 4,0
+    // 7,1 => 10,1
+    var galaxiesAfterExpansion = ApplyExpansionFactor(expansionFactor, galaxiesBeforeExpansion, columnsWithoutGalaxies, rowsWithoutGalaxies).ToList();
 }
 
 IEnumerable<int> GetColumnsWithoutGalaxies(Puzzle aoc)
@@ -61,11 +65,10 @@ IEnumerable<int> GetRowsWithoutGalaxies(Puzzle aoc)
     }
 }
 
-IEnumerable<(int, int)> FindGalaxies(Puzzle aoc, int expansionFactor, HashSet<int> columnsWithoutGalaxies, HashSet<int> rowsWithoutGalaxies)
+IEnumerable<(int, int)> FindGalaxies(Puzzle aoc)
 {
     var map = aoc.Map;
-
-    var i = 1;
+    
     for (var y = 0; y < aoc.Height; y++)
     {
         for (var x = 0; x < aoc.Width; x++)
@@ -73,21 +76,43 @@ IEnumerable<(int, int)> FindGalaxies(Puzzle aoc, int expansionFactor, HashSet<in
             var spot = map[x, y];
             if (spot == '#')
             {
-                var targetX = x;
-                var targetY = y;
-                if (columnsWithoutGalaxies.Any(z => z >= x))
-                {
-                    targetX += expansionFactor;
-                }
-
-                if (rowsWithoutGalaxies.Any(z => z >= y))
-                {
-                    targetY += expansionFactor;
-                }
-
-                yield return (targetX, targetY);
-                i++;
+                yield return (x, y);
             }
         }
+    }
+}
+
+IEnumerable<(int, int)> ApplyExpansionFactor(int expansionFactor, List<(int col, int row)> galaxyLocations, HashSet<int> columnsWithoutGalaxies, HashSet<int> rowsWithoutGalaxies)
+{
+    foreach (var location in galaxyLocations)
+    {
+        var c = location.col;
+        var r = location.row;
+
+        var i = 0;
+        foreach (var column in columnsWithoutGalaxies)
+        {
+            var expandedCol = column + expansionFactor - location.col;
+            i += expandedCol;
+            if (location.col > column)
+            {
+                c = location.col + i;
+                break;
+            }
+        }
+
+        i = 0;
+        foreach (var row in rowsWithoutGalaxies)
+        {
+            var expandedRow = row + expansionFactor - location.row;
+            i += expandedRow;
+            if (location.row > row)
+            {
+                r = location.row + i;
+                break;
+            }
+        }
+
+        yield return (c, r);
     }
 }
