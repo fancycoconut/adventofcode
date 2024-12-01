@@ -11,7 +11,6 @@ void Part1(string filename)
     var columnsWithoutGalaxies = GetColumnsWithoutGalaxies(aoc).ToHashSet();
     var rowsWithoutGalaxies = GetRowsWithoutGalaxies(aoc).ToHashSet();
 
-    var expansionFactor = 2;
     var galaxiesBeforeExpansion = FindGalaxies(aoc).ToList();
     
     // 3,0 => 4,0
@@ -82,37 +81,34 @@ IEnumerable<(int, int)> FindGalaxies(Puzzle aoc)
     }
 }
 
-IEnumerable<(int, int)> ApplyExpansionFactor(int expansionFactor, List<(int col, int row)> galaxyLocations, HashSet<int> columnsWithoutGalaxies, HashSet<int> rowsWithoutGalaxies)
+IEnumerable<(int, int)> ApplyExpansionFactor(List<(int col, int row)> galaxyLocations, HashSet<int> columnsWithoutGalaxies, HashSet<int> rowsWithoutGalaxies, int width, int height)
 {
-    foreach (var location in galaxyLocations)
+    var newWidth = width + columnsWithoutGalaxies.Count;
+    var newHeight = height + rowsWithoutGalaxies.Count;
+    var expandedMap = new char[newWidth, newHeight];
+
+    for (var x = 0; x < newWidth; x++)
     {
-        var c = location.col;
-        var r = location.row;
-
-        var i = 0;
-        foreach (var column in columnsWithoutGalaxies)
+        for (var y = 0; y < newHeight; y++)
         {
-            var expandedCol = column + expansionFactor - location.col;
-            i += expandedCol;
-            if (location.col > column)
-            {
-                c = location.col + i;
-                break;
-            }
-        }
 
-        i = 0;
-        foreach (var row in rowsWithoutGalaxies)
-        {
-            var expandedRow = row + expansionFactor - location.row;
-            i += expandedRow;
-            if (location.row > row)
-            {
-                r = location.row + i;
-                break;
-            }
         }
-
-        yield return (c, r);
     }
+}
+
+char[,] ApplyExpansionFactor(List<(int col, int row)> galaxyLocations, HashSet<int> columnsWithoutGalaxies, HashSet<int> rowsWithoutGalaxies, int width, int height)
+{
+    var newWidth = width + columnsWithoutGalaxies.Count;
+    var newHeight = height + rowsWithoutGalaxies.Count;
+    var expandedMap = new char[newWidth, newHeight];
+
+    for (var x = 0; x < newWidth; x++)
+    {
+        for (var y = 0; y < newHeight; y++)
+        {
+
+        }
+    }
+
+    return expandedMap;
 }
