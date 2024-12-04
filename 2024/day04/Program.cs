@@ -5,7 +5,10 @@ using System.Text;
 Console.WriteLine("Hello, World!");
 
 Part1("sample.txt");
-Part1("input.txt");
+//Part1("input.txt");
+
+Part2("sample.txt");
+Part2("input.txt");
 
 void Part1(string filename)
 {
@@ -30,6 +33,81 @@ void Part1(string filename)
   Console.WriteLine($"Part 1 - Total: {total}");
 }
 
+void Part2(string filename)
+{
+  var lines = File.ReadAllLines(filename);
+  var map = BuildMap(lines);
+
+  var coordinates = FindCoordinatesForLetter(map, 'A').ToList();
+  // foreach (var coordinate in coordinates)
+  // {
+  //   Console.WriteLine($"({coordinate.x}, {coordinate.y})");
+  // }
+
+  var total = CountForXMas(coordinates, map);
+
+  Console.WriteLine($"Part 2 - Total: {total}");
+}
+
+int CountForXMas(List<(int x, int y)> coordinates, char[,] map)
+{
+  var width = map.GetLength(0);
+  var height = map.GetLength(1);
+
+  var count = 0;
+  var queue = new Queue<(int x, int y)>();
+  Console.WriteLine($"Total coordinates: {coordinates.Count}");
+  foreach (var coordinate in coordinates)
+  {
+    //Console.WriteLine($"({coordinate.x},{coordinate.y})");
+    queue.Enqueue(coordinate);
+  }
+
+  while (queue.Count > 0)
+  {
+    var coord = queue.Dequeue();
+    var x = coord.x;
+    var y = coord.y;
+    if (x - 1 < 0 || x + 1 >= width || y - 1 < 0 || y + 1 >= height)
+    {
+      //Console.WriteLine($"({x},{y}) - fail");
+      continue;
+    }
+
+    var topLeft = map[x-1, y-1];
+    var topRight = map[x+1, y-1];
+    var bottomLeft = map[x-1, y+1];
+    var bottomRight = map[x+1, y+1];
+
+    if ((topLeft == 'M' && bottomRight == 'S' && bottomLeft == 'M' && topRight == 'S')
+      ||(topLeft == 'M' && bottomRight == 'S' && bottomLeft == 'S' && topRight == 'M')
+      ||(topLeft == 'S' && bottomRight == 'M' && bottomLeft == 'M' && topRight == 'S')
+      ||(topLeft == 'S' && bottomRight == 'M' && bottomLeft == 'S' && topRight == 'M'))
+    {
+      //Console.WriteLine($"({x},{y}) - pass");
+      count++;
+    }
+  }
+
+  return count;
+}
+
+IEnumerable<(int x, int y)> FindCoordinatesForLetter(char[,] map, char letter)
+{
+  var width = map.GetLength(0);
+  var height = map.GetLength(1);
+
+  for (var x = 0; x < width; x++)
+  {
+    for (var y = 0; y < height; y++)
+    {
+      if (map[x, y] == letter)
+      {
+        yield return (x, y);
+      }
+    }
+  }
+}
 
 List<string> GetVerticalLines(char[,] map)
 {
@@ -62,6 +140,7 @@ List<string> GetTopLeftToBottomRightDiagonalLines(char[,] map)
   for (var y = 0; y < height; y++)
   {
     var letters = GetDiagonal(map, 0, y, 1, 1);
+    //Console.WriteLine($"1 - {string.Join("", letters)}");
     lines.Add(string.Join("", letters));
   }
 
@@ -69,6 +148,7 @@ List<string> GetTopLeftToBottomRightDiagonalLines(char[,] map)
   for (var x = 1; x < width; x++)
   {
     var letters = GetDiagonal(map, x, 0, 1, 1);
+    //Console.WriteLine($"2 - {string.Join("", letters)}");
     lines.Add(string.Join("", letters));
   }
 
@@ -120,7 +200,7 @@ List<char> GetDiagonal(char[,] map, int startRow, int startColumn, int rowStep, 
 
 int CountLines(IEnumerable<string> lines)
 {
-  const string pattern = @"(?=(XMAS|SAMX))"; //@"XMAS|SAMX";
+  const string pattern = @"(?=(XMAS|SAMX))";
 
   var count = 0;
   foreach (var line in lines)
