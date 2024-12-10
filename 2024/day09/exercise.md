@@ -55,4 +55,4 @@ Continuing the first example, the first few blocks' position multiplied by its f
 
 Compact the amphipod's hard drive using the process he requested. **What is the resulting filesystem checksum?** *(Be careful copy/pasting the input for this puzzle; it is a single, very long line.)*
 
-Your answer: ``
+Your answer: `6242766523059`

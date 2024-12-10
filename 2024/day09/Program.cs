@@ -21,15 +21,15 @@ void Part1(string filename)
   Console.WriteLine($"Part 1 - Checksum: {checksum}");
 }
 
-double CalculateChecksum(string expandedDiskMap)
+double CalculateChecksum(List<string> expandedDiskMap)
 {
   double total = 0;
-  var input = expandedDiskMap.AsSpan();
+  var input = expandedDiskMap.ToArray();
 
   for (var i = 0; i < input.Length; i++)
   {
     var current = input[i];
-    if (current == '.') continue;
+    if (current == ".") continue;
 
     var id = double.Parse(current.ToString());
     total += i * id;
@@ -39,9 +39,9 @@ double CalculateChecksum(string expandedDiskMap)
 }
 
 // Using 2 pointer approach
-string RearrangeFileblocks(string expandedDiskMap)
+List<string> RearrangeFileblocks(List<string> expandedDiskMap)
 {
-  var input = expandedDiskMap.ToCharArray();
+  var input = expandedDiskMap.ToArray();
 
   var left = 0;
   var right = input.Length - 1;
@@ -50,31 +50,28 @@ string RearrangeFileblocks(string expandedDiskMap)
   {
     var leftValue = input[left];
     var rightValue = input[right];
-    if (leftValue != '.') {
+    if (leftValue != ".") {
       left++;
       continue;
     }
-    if (rightValue == '.') {
+    if (rightValue == ".") {
       right--;
       continue;
     }
 
     // Swap - moving back to front
-    if (leftValue == '.' && rightValue != '.')
-    {
-      var temp = input[left];
-      input[left] = input[right];
-      input[right] = temp;
-    }
+    var temp = input[left];
+    input[left] = input[right];
+    input[right] = temp;
   }
 
-  return new string(input);
+  return input.ToList();
 }
 
-string ExpandDiskmap(string diskmap)
+List<string> ExpandDiskmap(string diskmap)
 {
   double id = 0;
-  var sb = new StringBuilder();
+  var expandedDiskMap = new List<string>();
 
   var input = diskmap.AsSpan();
   for (var i = 0; i < input.Length; i += 2)
@@ -88,16 +85,16 @@ string ExpandDiskmap(string diskmap)
 
     for (var x = 0; x < blockSize; x++)
     {
-      sb.Append(id);
+      expandedDiskMap.Add(id.ToString());
     }
 
     for (var y = 0; y < freeSpace; y++)
     {
-      sb.Append(".");
+      expandedDiskMap.Add(".");
     }
 
     id++;
   }
 
-  return sb.ToString();
+  return expandedDiskMap;
 }
