@@ -1,22 +1,55 @@
 ﻿// See https://aka.ms/new-console-template for more information
 Console.WriteLine("Hello, World!");
 
+Part1("sample.txt");
+Part1("input.txt");
+
 void Part1(string filename)
 {
   var lines = File.ReadAllLines(filename);
 
-  var total = 0;
+  ulong total = 0;
   foreach (var line in lines)
   {
     var colonIndex = line.IndexOf(':');
-    var testValue = int.Parse(line[0..colonIndex]);
+    var testValue = ulong.Parse(line[0..colonIndex]);
     var numbers = line[(colonIndex + 1)..].Split(' ')
-      .Select(x => int.Parse(x))
-      .ToList();
+      .Where(x => x != "")
+      .Select(x => ulong.Parse(x))
+      .ToArray();
 
-    Console.WriteLine($"{testValue}");
+    var isValid = CanSolve(numbers[0], 0, testValue, numbers);
+    total += isValid ? testValue : 0;
+
+    Console.WriteLine($"{testValue} - is valid: {isValid}");
   }
 
   Console.WriteLine($"Part 1 - Total: {total}");
 }
 
+bool CanSolve(ulong currentResult, int index, ulong expectedResult, ulong[] numbers)
+{
+  if (currentResult > expectedResult) return false;
+  if (index == numbers.Length - 1) return currentResult == expectedResult;
+
+  if (CanSolve(currentResult + numbers[index + 1], index + 1, expectedResult, numbers))
+  {
+    return true;
+  }
+
+  if (CanSolve(currentResult * numbers[index + 1], index + 1, expectedResult, numbers))
+  {
+    return true;
+  }
+
+  return false;
+}
+
+
+
+
+
+// Options:
+// Find all possible results using one of the following:
+// - Recursive backtracking example
+// - Use a tree structure
