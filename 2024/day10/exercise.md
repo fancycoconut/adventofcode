@@ -76,4 +76,4 @@ This larger example has 9 trailheads. Considering the trailheads in reading orde
 
 The reindeer gleefully carries over a protractor and adds it to the pile. **What is the sum of the scores of all trailheads on your topographic map?**
 
-Your answer: ``
+Your answer: `717`
