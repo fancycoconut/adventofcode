@@ -9,29 +9,34 @@ void Part1 (string filename, int blinks)
 {
   var text = File.ReadAllText(filename);
   
-  List<ulong> results = new List<ulong>();
-  for (var i = 0; i < blinks; i++)
+  var results = BlinkText(text);
+  for (var i = 1; i < blinks; i++)
   {
-    results = Blink(text);
-    text = string.Join(" ", results);
-    Console.WriteLine($"After {i+1} blink:");
-    Console.WriteLine(text);
+    results = Blink(results);
+    //Console.WriteLine($"After {i+1} blink:");
+    //Console.WriteLine(string.Join(" ", results));
   }
 
   Console.WriteLine($"Part 1 - Total number of stones: {results.Count}");
 }
 
-List<ulong> Blink(string text)
+List<ulong> BlinkText(string text)
 {
   var stones = text.Split(" ")
-    .Select(x => ulong.Parse(x));
+    .Select(ulong.Parse)
+    .ToList();
 
+  return Blink(stones);
+}
+
+List<ulong> Blink(List<ulong> stones)
+{
   var result = new List<ulong>();
 
   foreach (var stone in stones)
   {
     var stoneAsString = stone.ToString();
-    Console.WriteLine($"Stone: {stoneAsString}");
+    //Console.WriteLine($"Stone: {stoneAsString}");
     if (stone == 0)
     {
       result.Add(1);
