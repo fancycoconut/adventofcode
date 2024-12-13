@@ -1,11 +1,14 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using System.Linq;
+
 Console.WriteLine("Hello, World!");
 
-//Part1("sample.txt", 1);
+Part1("sample.txt", 1);
 Part1("sample2.txt", 6);
 Part1("input.txt", 25);
-//Part2("sample.txt", 1);
-//Part2("sample2.txt", 6);
+
+Part2("sample.txt", 1);
+Part2("sample2.txt", 6);
 Part2("input.txt", 25);
 Part2("input.txt", 75);
 
@@ -43,13 +46,21 @@ List<ulong> BlinkText(string text)
   return Blink(stones);
 }
 
-int BlinkTextV2(string text, int blinks)
+long BlinkTextV2(string text, int blinks)
 {
   var stones = text.Split(" ")
-    .Select(ulong.Parse);
+    .Select(ulong.Parse)
+    .ToList();
 
-  var countCache = new Dictionary<ulong, int>();
-  return BlinkStones(stones.ToArray(), blinks, countCache);
+  var countCache = new Dictionary<(ulong, int), long>();
+
+  long total = 0;
+  foreach (var stone in stones)
+  {
+    total += BlinkStone(stone, blinks, countCache);
+  }
+
+  return total;
 }
 
 List<ulong> Blink(List<ulong> stones)
@@ -82,49 +93,22 @@ List<ulong> Blink(List<ulong> stones)
   return result;
 }
 
-int BlinkStones(ulong[] stones, int blinks, Dictionary<ulong, int> countCache)
+long BlinkStone(ulong stone, int blinks, Dictionary<(ulong stone, int blinks), long> countCache)
 {
-  var total = 0;
-  if (blinks == 1)
-  {
-    foreach (var stone in stones)
-    {
-      if (countCache.TryGetValue(stone, out var count))
-      {
-        total += count;
-      }
-      else
-      {
-        var results = BlinkStone(stone);
-        total += results.Length;
-        countCache[stone] = results.Length;
-      }
-    }
-    return total;
-  }
-
-  foreach (var stone in stones)
-  {
-    var results = BlinkStone(stone);
-    total += BlinkStones(results, blinks - 1, countCache);
-    //Console.WriteLine($"Blink: {blinks} total: {total}");
-  }
-
-  return total;
-}
-
-ulong[] BlinkStone(ulong stone)
-{
-  if (stone == 0) return new ulong[] { 1 };
-
+  if (blinks == 0) return 1;
+  if (countCache.TryGetValue((stone, blinks), out var result)) return result;
+  if (stone == 0) return BlinkStone(1, blinks - 1, countCache);
+  
   var numDigits = (int)Math.Floor(Math.Log10(stone)) + 1;
   if (numDigits % 2 == 0)
   {
     var split = (ulong)Math.Pow(10, numDigits / 2);
     var left = stone / split;
     var right = stone % split;
-    return new ulong[] { left, right };
+    return BlinkStone(left, blinks - 1, countCache) + BlinkStone(right, blinks - 1, countCache);
   }
-
-  return new ulong[] { stone * 2024 };
+  
+  var value = BlinkStone(stone * 2024, blinks - 1, countCache);
+  countCache[(stone, blinks)] = value;
+  return value;
 }
