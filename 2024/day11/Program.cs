@@ -107,7 +107,7 @@ int BlinkStones(ulong[] stones, int blinks, Dictionary<ulong, int> countCache)
   {
     var results = BlinkStone(stone);
     total += BlinkStones(results, blinks - 1, countCache);
-    Console.WriteLine($"Blink: {blinks} total: {total}");
+    //Console.WriteLine($"Blink: {blinks} total: {total}");
   }
 
   return total;
