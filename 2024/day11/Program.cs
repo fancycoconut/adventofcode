@@ -2,10 +2,10 @@
 Console.WriteLine("Hello, World!");
 
 //Part1("sample.txt", 1);
-//Part1("sample2.txt", 6);
+Part1("sample2.txt", 6);
 Part1("input.txt", 25);
 //Part2("sample.txt", 1);
-//Part2("sample.txt", 6);
+//Part2("sample2.txt", 6);
 Part2("input.txt", 25);
 Part2("input.txt", 75);
 
@@ -28,10 +28,10 @@ void Part2(string filename, int blinks)
 {
   var text = File.ReadAllText(filename);
 
-  var results = BlinkTextV2(text, blinks);
+  var total = BlinkTextV2(text, blinks);
   //Console.WriteLine(string.Join(" ", results));
 
-  Console.WriteLine($"Part 2 - Total number of stones: {results.Length}");
+  Console.WriteLine($"Part 2 - Total number of stones: {total}");
 }
 
 List<ulong> BlinkText(string text)
@@ -43,15 +43,13 @@ List<ulong> BlinkText(string text)
   return Blink(stones);
 }
 
-ulong[] BlinkTextV2(string text, int blinks)
+int BlinkTextV2(string text, int blinks)
 {
   var stones = text.Split(" ")
-    .Select(ulong.Parse)
-    .ToArray();
+    .Select(ulong.Parse);
 
-  var stoneCache = new Dictionary<ulong, ulong[]>();
-
-  return BlinkV2(stones, blinks, stoneCache);
+  var countCache = new Dictionary<ulong, int>();
+  return BlinkStones(stones.ToArray(), blinks, countCache);
 }
 
 List<ulong> Blink(List<ulong> stones)
@@ -84,27 +82,35 @@ List<ulong> Blink(List<ulong> stones)
   return result;
 }
 
-ulong[] BlinkV2(ulong[] stones, int blinks, Dictionary<ulong, ulong[]> stoneCache)
+int BlinkStones(ulong[] stones, int blinks, Dictionary<ulong, int> countCache)
 {
-  if (blinks == 0) return stones;
-
-  var results = new List<ulong>();
-  foreach (var stone in stones)
+  var total = 0;
+  if (blinks == 1)
   {
-    if (stoneCache.ContainsKey(stone))
+    foreach (var stone in stones)
     {
-      results.AddRange(stoneCache[stone]);
-      continue;
+      if (countCache.TryGetValue(stone, out var count))
+      {
+        total += count;
+      }
+      else
+      {
+        var results = BlinkStone(stone);
+        total += results.Length;
+        countCache[stone] = results.Length;
+      }
     }
-
-    var result = BlinkStone(stone);
-    stoneCache[stone] = result;
-    results.AddRange(result);
+    return total;
   }
 
-  Console.WriteLine($"After {75 - blinks} blink:");
-  var input = results.ToArray();
-  return BlinkV2(input, blinks - 1, stoneCache); 
+  foreach (var stone in stones)
+  {
+    var results = BlinkStone(stone);
+    total += BlinkStones(results, blinks - 1, countCache);
+    Console.WriteLine($"Blink: {blinks} total: {total}");
+  }
+
+  return total;
 }
 
 ulong[] BlinkStone(ulong stone)
